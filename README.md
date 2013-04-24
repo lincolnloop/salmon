@@ -2,7 +2,7 @@
 
 A multi-server monitoring system built on top of [Salt](http://www.saltstack.org) using Django.
 
-The project currently isn't much more than proof-of-concept. I'm interested in exploring its usefulness as both an alerting system like [monit](http://mmonit.com/monit/) and a monitoring system like [munin](http://munin-monitoring.org/) (perhaps using [Graphite's whisper datebase](http://graphite.readthedocs.org/en/latest/whisper.html)). 
+The project currently isn't much more than proof-of-concept. I'm interested in exploring its usefulness as both an alerting system like [monit](http://mmonit.com/monit/) and a monitoring system like [munin](http://munin-monitoring.org/) (perhaps using [Graphite's whisper database](http://graphite.readthedocs.org/en/latest/whisper.html)). 
 
 ![](http://cl.ly/image/2R1o2b0D1j1q/content.png)
 
