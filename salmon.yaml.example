@@ -1,0 +1,17 @@
+"*.example.com":                        # Salt target
+    service.status nginx:               # Salt function(s) to run against target
+        type: boolean                   # Expected result type
+        assert: "{value} == True"       # Fail is this evals to False
+    service.status postgresql:
+        type: boolean
+        assert: "{value} == True"
+    disk.usage:
+        name: 'Disk Usage (/)'
+        type: percentage
+        key: "/.capacity"
+        assert: "{value} < 80"
+
+"mysql.example.com":
+    service.status mysql:
+        type: boolean
+        assert: "{value} == True"

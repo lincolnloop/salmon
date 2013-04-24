@@ -25,7 +25,7 @@ LANGUAGES = (
 SECRET_KEY = '+$l@=0=6ystdflyqticq8hsa_4t#ofipjbknb%8kn5s7www=04'
 
 INSTALLED_APPS = (
-    'salt_monitor.apps.monitor',
+    'salmon.apps.monitor',
 
     'south',
 
@@ -45,7 +45,7 @@ INSTALLED_APPS = (
 
 import os
 import sys
-import salt_monitor as project_module
+import salmon as project_module
 
 PROJECT_DIR = os.path.dirname(os.path.realpath(project_module.__file__))
 
@@ -72,7 +72,7 @@ if not os.path.exists(VAR_ROOT):
 # Project URLS and media settings
 #==============================================================================
 
-ROOT_URLCONF = 'salt_monitor.urls'
+ROOT_URLCONF = 'salmon.urls'
 
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
@@ -119,6 +119,7 @@ AUTHENTICATION_BACKENDS += (
 
 # work-around for https://github.com/saltstack/salt/issues/4454
 SALT_COMMAND = '/usr/bin/python /usr/bin/salt'
+SALMON_CONFIG = os.path.join(PROJECT_DIR, os.pardir, 'salmon.yaml')
 
 #==============================================================================
 # Third party app settings

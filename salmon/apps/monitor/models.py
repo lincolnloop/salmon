@@ -3,40 +3,16 @@ from django.utils import timezone
 from django.conf import settings
 
 
-class Target(models.Model):
-    """A Salt target minion"""
-    name = models.CharField(max_length=255)
-
-    def __unicode__(self):
-        return self.name
-
-
-class Function(models.Model):
-    """The Salt function (module) to call"""
-    name = models.CharField(max_length=255)
-
-    def __unicode__(self):
-        return self.name
-
-
 class Check(models.Model):
     """A description for a Salt call"""
-    target = models.ForeignKey('monitor.Target')
-    function = models.ForeignKey('monitor.Function')
+    target = models.CharField(max_length=255)
+    function = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, blank=True)
     active = models.BooleanField(default=True)
     last_run = models.DateTimeField(default=timezone.now, null=True)
 
     def __unicode__(self):
         return '{} {}'.format(self.target, self.function)
-
-    @property
-    def salt_command(self, output='json'):
-        """The actual Salt command to shell out"""
-        return ' '.join([settings.SALT_COMMAND,
-                         '--static',
-                         '--out={}'.format(output),
-                         '"{}"'.format(self.target.name),
-                         self.function.name])
 
 
 class Minion(models.Model):
@@ -53,6 +29,12 @@ class Result(models.Model):
     minion = models.ForeignKey('monitor.Minion')
     timestamp = models.DateTimeField(default=timezone.now)
     result = models.TextField()
+    result_type = models.CharField(max_length=30)
+    failed = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.timestamp.isoformat()
+
+    @property
+    def cleaned_result(self):
+        return utils.TypeTranslate(self.result_type)(self.result)

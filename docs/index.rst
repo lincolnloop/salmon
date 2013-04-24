@@ -1,4 +1,4 @@
-Welcome to salt_monitor's documentation!
+Welcome to salmon's documentation!
 =====================================
 
 Contents:

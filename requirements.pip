@@ -5,5 +5,5 @@
 #     pip install -r requirements.pip
 
 django==1.5.1
-envoy==0.0.2
 south==0.7.6
+pyyaml==3.10

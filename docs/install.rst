@@ -19,8 +19,8 @@ Creating the Virtual Environment
 
 First, create a clean base environment using virtualenv::
 
-    virtualenv salt_monitor
-    cd salt_monitor
+    virtualenv salmon
+    cd salmon
     source bin/activate
 
 
@@ -29,7 +29,7 @@ Installing the Project
 
 Install the requirements and the project source::
 
-	cd path/to/your/salt_monitor/repository
+	cd path/to/your/salmon/repository
     pip install -r requirements.pip
     pip install -e .
 
@@ -40,7 +40,7 @@ Configuring a Local Environment
 If you're just checking the project out locally, you can copy some example
 configuration files to get started quickly::
 
-    cp salt_monitor/settings/local.py.example salt_monitor/settings/local.py
+    cp salmon/settings/local.py.example salmon/settings/local.py
     manage.py syncdb --migrate
 
 
