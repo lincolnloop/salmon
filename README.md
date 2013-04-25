@@ -14,7 +14,7 @@ To bootstrap the project:
 
     virtualenv salmon
     source salmon/bin/activate
-    pip -e git+https://github.com/lincolnloop/salmon.git#egg=salmon
+    pip install -e git+https://github.com/lincolnloop/salmon.git#egg=salmon
     salmon init
     salmon upgrade
 
