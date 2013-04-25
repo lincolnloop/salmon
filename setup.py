@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='salmon',
-    version='0.1.1',
+    version='0.1.4',
     description="A monitoring system built on top of Salt.",
     long_description=open('README.rst').read(),
     author="Lincoln Loop",
@@ -23,5 +23,9 @@ setup(
         ],
     },
     packages=find_packages(),
-    package_data={'salmon': ['static/*.*', 'templates/*.*']},
+    package_data={'salmon': [
+        'static/*.*',
+        'templates/*.*',
+        'settings/example/*.*'
+    ]},
 )

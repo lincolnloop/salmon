@@ -1,4 +1,4 @@
-include setup.py README.rst MANIFEST.in LICENSE
+include manage.py README.rst LICENSE
+recursive-include salmon/settings/example *.py *.yaml
 recursive-include salmon/templates *
 recursive-include salmon/static *
-global-exclude *~
