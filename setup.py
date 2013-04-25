@@ -3,11 +3,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='salmon',
-    version='0.1.4',
+    version='0.1.5-dev',
     description="A monitoring system built on top of Salt.",
     long_description=open('README.rst').read(),
-    author="Lincoln Loop",
-    author_email='info@lincolnloop.com',
+    author="Peter Baumgarter",
+    author_email='pete@lincolnloop.com',
     url='https://github.com/lincolnloop/salmon',
     license='LICENSE',
     install_requires=[
