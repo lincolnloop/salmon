@@ -33,4 +33,7 @@ class TypeTranslate(object):
         return bool(value)
 
     def to_percentage(self, value):
-        return float(value.rstrip('%'))
+        return self.to_float(value.rstrip('%'))
+
+    def to_float(self, value):
+        return float(value)
