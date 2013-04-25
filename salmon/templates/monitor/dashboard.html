@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends parent_template %}
 
 {% block content %}
     {% for minion, results in minions.items %}
@@ -33,7 +33,7 @@
                             {{ result.result }}
                         {% endif %}
                     {% endif %}</td>
-                <td title="{{ result.timestamp }}">{{ result.timestamp|timesince }} ago</td>
+                <td><time class="timeago" title="{{ result.timestamp.isoformat }}" datetime="{{ result.timestamp.isoformat }}">{{ result.timestamp }}</time></td>
             </tr>
         {% endfor %}
         </tbody>
@@ -44,3 +44,25 @@
     </div>
     {% endfor %}
 {% endblock content %}
+{% block footer %}
+    <p class="fine-print">Last updated: <span id="last-update"></span></p>
+{% endblock %}
+{% block extrajs %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.pjax.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.timeago.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+        function updateTimestamps () {
+            $('#last-update').text(new Date().toLocaleTimeString());
+            $("time.timeago").timeago();
+        }
+        function updateContent () {
+            $.pjax({url: window.location.href, container: '#content'});
+        }
+        updateTimestamps();
+        // update every minute
+        setInterval(updateContent, 60000);
+        $(document).on('pjax:success', updateTimestamps);
+    });
+    </script>
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+
 from . import models
 
 
@@ -10,5 +11,10 @@ def dashboard(request):
                                                       timestamp=check.last_run)
         for result in latest_results:
             minions.setdefault(result.minion, []).append(result)
-
-    return render(request, 'monitor/dashboard.html', {'minions': minions})
+    if request.META.get('HTTP_X_PJAX', False):
+        parent_template = 'pjax.html'
+    else:
+        parent_template = 'base.html'
+    return render(request, 'monitor/dashboard.html',
+                            {'minions': minions,
+                             'parent_template': parent_template})
