@@ -1,0 +1,4 @@
+include setup.py README.rst MANIFEST.in LICENSE
+recursive-include salmon/templates *
+recursive-include salmon/static *
+global-exclude *~
