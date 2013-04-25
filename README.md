@@ -4,7 +4,7 @@ A multi-server monitoring system built on top of [Salt](http://www.saltstack.org
 
 The project currently isn't much more than proof-of-concept. I'm interested in exploring its usefulness as both an alerting system like [monit](http://mmonit.com/monit/) and a monitoring system like [munin](http://munin-monitoring.org/) (perhaps using [Graphite's whisper database](http://graphite.readthedocs.org/en/latest/whisper.html)). 
 
-![](http://cl.ly/image/1v1K2B1z1G2d/content.png)
+![](http://cl.ly/image/0a0t0b3Y0o1Z/content.png)
 
 ## Installation
 
@@ -14,19 +14,17 @@ To bootstrap the project:
 
     virtualenv salmon
     source salmon/bin/activate
-    cd path/to/salmon/repository
-    pip install -r requirements.pip
-    pip install -e .
-    cp salmon/settings/local.py.example salmon/settings/local.py
-    manage.py syncdb --migrate
+    pip -e git+https://github.com/lincolnloop/salmon.git#egg=salmon
+    salmon init
+    salmon upgrade
 
-Fire up the development server with:
+Fire up the web server with:
 
-    manage.py runserver
+    salmon start
 
-Now create a config file for your checks. There is a [commented example in the repo](https://github.com/lincolnloop/salmon/blob/master/salmon.yaml.example).
+Now create a config file for your checks. There is a [commented example in the repo](https://github.com/lincolnloop/salmon/blob/master/settings/example/checks.yaml). Store this in the same directory as your `conf.py` file (default: `~/.salmon/checks.yaml`)
 
-Once you have your targets defined, you can run `manage.py run_checks` periodically with `cron` and view the status at `http://localhost:8000`.
+Once you have your checks defined, you can run `manage.py run_checks` periodically with `cron` and view the status at `http://localhost:9000`.
 
 ## Configuring Salt
 

@@ -21,5 +21,9 @@
         {% endfor %}
         </tbody>
     </table>
+    {% empty %}
+    <div class="well">
+        <p><span class="label label-important">No Data</span> Looks like you just started. Try running <tt>salmon run_checks</tt>.</p>
+    </div>
     {% endfor %}
 {% endblock content %}

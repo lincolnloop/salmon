@@ -25,8 +25,10 @@ LANGUAGES = (
 SECRET_KEY = '+$l@=0=6ystdflyqticq8hsa_4t#ofipjbknb%8kn5s7www=04'
 
 INSTALLED_APPS = (
+    'salmon.core',
     'salmon.apps.monitor',
 
+    'gunicorn',
     'south',
 
     'django.contrib.auth',
@@ -89,6 +91,17 @@ STATICFILES_DIRS = (
 )
 
 #==============================================================================
+# Database
+#==============================================================================
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(VAR_ROOT, 'salmon.db'),
+    }
+}
+
+#==============================================================================
 # Templates
 #==============================================================================
 
@@ -119,7 +132,17 @@ AUTHENTICATION_BACKENDS += (
 
 # work-around for https://github.com/saltstack/salt/issues/4454
 SALT_COMMAND = '/usr/bin/python /usr/bin/salt'
-SALMON_CONFIG = os.path.join(PROJECT_DIR, os.pardir, 'salmon.yaml')
+
+# Web Service
+WEB_HOST = 'localhost'
+WEB_PORT = 9000
+WEB_OPTIONS = {
+    'workers': 3,
+}
+
+LOGGING = {
+    'version': 1,
+}
 
 #==============================================================================
 # Third party app settings

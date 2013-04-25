@@ -11,8 +11,13 @@ from salmon.apps.monitor import models, utils
 class Command(NoArgsCommand):
     help = "Run Salt monitor checks"
 
+    def load_salmon_checks(self):
+        checks_yaml = open(settings.SALMON_CHECKS_PATH).read()
+        return yaml.safe_load(checks_yaml)
+
+
     def handle_noargs(self, **options):
-        config = yaml.safe_load(open(settings.SALMON_CONFIG).read())
+        config = self.load_salmon_checks()
         self.stdout.write("Running checks...")
         for target, functions in config.items():
             for func_name, func_opts in functions.items():
