@@ -1,5 +1,5 @@
 <div class="progress progress-success">
-    <div class="bar" style="width: {{ result.cleaned_result }}%">
+    <div class="bar" style="width: {{ result.cleaned_result|floatformat:0 }}%">
     </div>
-    &nbsp;<small>{{ result.cleaned_result }}%</small>
+    &nbsp;<small>{{ result.cleaned_result|floatformat:0 }}%</small>
 </div>
