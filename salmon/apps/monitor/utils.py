@@ -30,7 +30,7 @@ class TypeTranslate(object):
         return getattr(self, 'to_{}'.format(self.cast_to))(value)
 
     def to_boolean(self, value):
-        return bool(value)
+        return value == 'True'
 
     def to_percentage(self, value):
         return self.to_float(value)
