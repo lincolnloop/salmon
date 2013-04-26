@@ -48,7 +48,6 @@
     <p class="fine-print">Last updated: <span id="last-update"></span></p>
 {% endblock %}
 {% block extrajs %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.pjax.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.timeago.js"></script>
     <script type="text/javascript">
     $(document).ready(function () {
@@ -57,12 +56,19 @@
             $("time.timeago").timeago();
         }
         function updateContent () {
-            $.pjax({url: window.location.href, container: '#content'});
+            $.ajax({
+                url: window.location.href,
+                type: 'GET',
+                headers: {'X-PJAX': 'true'},
+                success: function (data) {
+                    $('#content').html(data);
+                    updateTimestamps();
+                }
+            });
         }
         updateTimestamps();
         // update every minute
         setInterval(updateContent, 60000);
-        $(document).on('pjax:success', updateTimestamps);
     });
     </script>
 {% endblock %}
