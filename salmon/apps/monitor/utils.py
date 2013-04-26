@@ -7,12 +7,13 @@ def build_command(target, function, output='json'):
     cmd_list.extend(function.split())
     return cmd_list
 
-def check_failed(value_as_str, opts):
-    value = TypeTranslate(opts['type']).cast(value_as_str)
+
+def check_failed(value, opts):
     success = eval(opts['assert'].format(value=value))
     assert isinstance(success, bool)
     # this is check_failed, not check_success
     return not success
+
 
 def parse_value(raw_value, opts):
     value = raw_value
@@ -21,6 +22,7 @@ def parse_value(raw_value, opts):
         for key in key_tree:
             value = value[key]
     return value
+
 
 class TypeTranslate(object):
     def __init__(self, cast_to):
