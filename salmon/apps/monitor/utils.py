@@ -10,7 +10,7 @@ def build_command(target, function, output='json'):
 
 def check_failed(value, opts):
     if isinstance(value, basestring):
-        value = TypeTranslate(opts['type']).cast(value_as_str)
+        value = TypeTranslate(opts['type']).cast(value)
     success = eval(opts['assert'].format(value=value))
     assert isinstance(success, bool)
     # this is check_failed, not check_success
