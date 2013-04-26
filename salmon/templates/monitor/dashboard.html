@@ -1,6 +1,6 @@
 {% extends parent_template %}
 {% load monitor %}
-
+{% block head_title %}: Status{% endblock %}
 {% block content %}
     {% for minion, results in minions.items %}
     <h2>{{ minion }}</h2>
