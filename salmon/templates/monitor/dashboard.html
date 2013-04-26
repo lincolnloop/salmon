@@ -1,4 +1,5 @@
 {% extends parent_template %}
+{% load monitor %}
 
 {% block content %}
     {% for minion, results in minions.items %}
@@ -15,24 +16,7 @@
         {% for result in results %}
             <tr{% if result.failed %} class="error"{% endif %}>
                 <td><tt>{{ result.check.name }}</tt></td>
-                <td>
-                    {% if result.result_type == 'percentage' %}
-                        <div class="progress progress-success">
-                            <div class="bar" style="width: {{ result.result }}">
-                            </div>
-                            &nbsp;<small>{{ result.result }}</small>
-                        </div>
-                    {% else %}
-                        {% if result.result_type == 'boolean' %}
-                            {% if result.result == 'True' %}
-                                <span class="badge badge-success"><i class="icon-ok icon-white"></i></span>
-                            {% else %}
-                                <span class="badge badge-important"><i class="icon-fire icon-white"></i></span>
-                            {% endif %}
-                        {% else %}
-                            {{ result.result }}
-                        {% endif %}
-                    {% endif %}</td>
+                <td>{% display_result result %}</td>
                 <td><time class="timeago" title="{{ result.timestamp.isoformat }}" datetime="{{ result.timestamp.isoformat }}">{{ result.timestamp }}</time></td>
             </tr>
         {% endfor %}

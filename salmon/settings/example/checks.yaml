@@ -7,7 +7,7 @@
         assert: "{value} == True"
     disk.usage:
         name: 'Disk Usage (/)'
-        type: percentage
+        type: percentage_with_sign
         key: "/.capacity"
         assert: "{value} < 80"
 

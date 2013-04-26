@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 
+from . import utils
+
 
 class Check(models.Model):
     """A description for a Salt call"""
@@ -37,4 +39,4 @@ class Result(models.Model):
 
     @property
     def cleaned_result(self):
-        return utils.TypeTranslate(self.result_type)(self.result)
+        return utils.TypeTranslate(self.result_type).cast(self.result)
