@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='salmon',
-    version='0.1.5',
+    version='0.1.6-dev',
     description="A monitoring system built on top of Salt.",
     long_description=open('README.rst').read(),
     author="Peter Baumgarter",
@@ -24,4 +24,5 @@ setup(
     },
     packages=find_packages(),
     include_package_data=True,
+    zip_safe=False,
 )
