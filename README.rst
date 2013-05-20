@@ -35,7 +35,7 @@ For security reasons, you shouldn't run this as ``root`` on your server. Instead
 
     client_acl:
       youruser:
-        - '.*':
+        - '*':
           - test.ping
           - service.status
           - disk.usage
