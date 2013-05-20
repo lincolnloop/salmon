@@ -33,11 +33,14 @@ class Command(BaseCommand):
             for func_name, func_opts in functions.items():
                 cmd = utils.build_command(target, func_name)
                 if options['fake']:
-                    self.stdout.write("cmd: %s" % cmd)
-                else:
-                    self._run_cmd(cmd)
+                    self.stdout.write("target: %s -- cmd: %s" % (target, cmd))
+                    self.stdout.write("    func_name: %s" % func_name)
+                    self.stdout.write("    func_opts: %s" % func_opts)
 
-    def _run_cmd(self, cmd):
+                else:
+                    self._run_cmd(target, func_name, func_opts, cmd)
+
+    def _run_cmd(self, target, func_name, func_opts, cmd):
         check, _ = models.Check.objects.get_or_create(
             target=target, function=func_name,
             name=func_opts.get('name', func_name))
