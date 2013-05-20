@@ -24,7 +24,6 @@ class Command(BaseCommand):
         return yaml.safe_load(checks_yaml)
 
     def handle(self, *args, **options):
-        import ipdb; ipdb.set_trace()
         config = self.load_salmon_checks()
         if options['fake']:
             self.stdout.write("Printing checks [fake mode] ...")
