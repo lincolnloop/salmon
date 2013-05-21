@@ -74,5 +74,5 @@ class WhisperDatabase(object):
         Returns None if no data can be returned
         """
         until_time = until_time or datetime.now()
-        whisper.fetch(self.path, from_time.strftime('%s'),
-                      until_time.strftime('%s'))
+        return whisper.fetch(self.path, from_time.strftime('%s'),
+                             until_time.strftime('%s'))
