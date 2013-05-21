@@ -1,8 +1,6 @@
-import os
 from django.db import models
 from django.utils import timezone
 from django.utils.text import get_valid_filename
-from django.conf import settings
 
 from . import utils, graph
 
@@ -64,5 +62,5 @@ class Result(models.Model):
         if not self.pk:
             # Store the value in the whisper database
             wsp = self.get_or_create_whisper()
-            wsp.update(value)
+            wsp.update(self.cleaned_result)
         return super(Result, self).save(*args, **kwargs)

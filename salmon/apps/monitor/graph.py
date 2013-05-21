@@ -84,6 +84,6 @@ def create_test_database(path):
     datapoints = []
     datapoints = [(now.strftime("%s"), 0)]
     for i in range(1000):
-        t = now + timedelta(minutes=i*5)
+        t = now - timedelta(minutes=i*5)
         datapoints.append((t.strftime("%s"), randint(1, 100)))
     wsp._update(datapoints)
