@@ -1,4 +1,5 @@
 from datetime import datetime
+import time
 import os
 import whisper
 
@@ -58,14 +59,14 @@ class WhisperDatabase(object):
           This method fetch data from the database according to the period
           given
 
-          fetch(path,fromTime,untilTime=None)
+          fetch(path, fromTime, untilTime=None)
 
-          fromTime is an epoch time
-          untilTime is also an epoch time, but defaults to now.
+          fromTime is an datetime
+          untilTime is also an datetime, but defaults to now.
 
           Returns a tuple of (timeInfo, valueList)
           where timeInfo is itself a tuple of (fromTime, untilTime, step)
 
           Returns None if no data can be returned
           """
-          whisper.fetch(self.path, fromTime, untilTime)
+          whisper.fetch(self.path, time.ctime(fromTime), time.ctime(untilTime))
