@@ -16,6 +16,7 @@ setup(
         'pyyaml==3.10',
         'logan==0.5.5',
         'gunicorn>=0.17.2,<0.18.0',
+        'whisper==0.9.10',
     ],
     entry_points={
         'console_scripts': [

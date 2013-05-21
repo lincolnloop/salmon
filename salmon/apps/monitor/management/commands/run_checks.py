@@ -1,13 +1,14 @@
 import json
 import subprocess
+from datetime import datetime
 from optparse import make_option
 import yaml
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from django.conf import settings
 
-from salmon.apps.monitor import models, utils
+from salmon.apps.monitor import models, utils, graph
 
 
 class Command(BaseCommand):
@@ -57,6 +58,7 @@ class Command(BaseCommand):
             return
         # parse out minion names in the event of a wildcard target
         for name, raw_value in parsed.iteritems():
+            print("DEBUG: %s,%s" %(name, raw_value))
             value = utils.parse_value(raw_value, func_opts)
             self.stdout.write("  {}: {}".format(name, value))
             minion, _ = models.Minion.objects.get_or_create(name=name)
@@ -67,3 +69,13 @@ class Command(BaseCommand):
                                          check=check,
                                          minion=minion,
                                          failed=failed)
+
+            # Store the value in the whisper database
+            check_name = check.name.replace(" ", "_")
+            # TODO: Find a better way. The issue is that some check_name
+            # contains / so we need to replace them by something that 
+            # does not cause issue
+            check_name = check_name.replace("/", "_")
+            wsp_db = graph.WhisperDatabase("%s__%s" % (name, check_name))
+            wsp_db.get_or_create()
+            wsp_db.update(value)
