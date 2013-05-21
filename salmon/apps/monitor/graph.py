@@ -13,14 +13,12 @@ class WhisperDatabase(object):
     def get_db_path(self, name):
         return os.path.join(settings.SALMON_WHISPER_DB_PATH, name)
 
-
     def get_or_create(self):
         if not os.path.exists(self.path):
             archives = [whisper.parseRetentionDef(settings.ARCHIVES)]
             whisper.create(self.path, archives,
                            xFilesFactor=settings.XFILEFACTOR,
                            aggregationMethod=settings.AGGREGATION_METHOD)
-
 
     def _floatify(self, value):
         """
@@ -49,10 +47,7 @@ class WhisperDatabase(object):
                  [(1368977629,10)]
         """
         if len(datapoints) == 1:
-          timestamp,value = datapoints[0]
-          whisper.update(self.path, value, timestamp)
+            timestamp, value = datapoints[0]
+            whisper.update(self.path, value, timestamp)
         else:
-          whisper.update_many(self.path, datapoints)
-
-
-
+            whisper.update_many(self.path, datapoints)
