@@ -10,17 +10,21 @@ class WhisperDatabase(object):
     def __init__(self, name):
         self.name = name
         self.path = self.get_db_path(name)
+        if not os.path.exists(self.path):
+            self._create()
 
     def get_db_path(self, name):
         return os.path.join(settings.SALMON_WHISPER_DB_PATH, name)
 
-    def get_or_create(self):
-        if not os.path.exists(self.path):
-            archives = [whisper.parseRetentionDef(retentionDef)
-                        for retentionDef in settings.ARCHIVES.split(",")]
-            whisper.create(self.path, archives,
-                           xFilesFactor=settings.XFILEFACTOR,
-                           aggregationMethod=settings.AGGREGATION_METHOD)
+    def _create(self):
+        """Create the Whisper file on disk"""
+        if not os.path.exists(settings.SALMON_WHISPER_DB_PATH):
+            os.makedirs(settings.SALMON_WHISPER_DB_PATH)
+        archives = [whisper.parseRetentionDef(retentionDef)
+                    for retentionDef in settings.ARCHIVES.split(",")]
+        whisper.create(self.path, archives,
+                       xFilesFactor=settings.XFILEFACTOR,
+                       aggregationMethod=settings.AGGREGATION_METHOD)
 
     def _floatify(self, value):
         """
@@ -54,19 +58,21 @@ class WhisperDatabase(object):
         else:
             whisper.update_many(self.path, datapoints)
 
-    def fetch(self, fromTime, untilTime=None):
-          """
-          This method fetch data from the database according to the period
-          given
+    def fetch(self, from_time, until_time=None):
+        """
+        This method fetch data from the database according to the period
+        given
 
-          fetch(path, fromTime, untilTime=None)
+        fetch(path, fromTime, untilTime=None)
 
-          fromTime is an datetime
-          untilTime is also an datetime, but defaults to now.
+        fromTime is an datetime
+        untilTime is also an datetime, but defaults to now.
 
-          Returns a tuple of (timeInfo, valueList)
-          where timeInfo is itself a tuple of (fromTime, untilTime, step)
+        Returns a tuple of (timeInfo, valueList)
+        where timeInfo is itself a tuple of (fromTime, untilTime, step)
 
-          Returns None if no data can be returned
-          """
-          whisper.fetch(self.path, time.ctime(fromTime), time.ctime(untilTime))
+        Returns None if no data can be returned
+        """
+        until_time = until_time or datetime.now()
+        whisper.fetch(self.path, from_time.strftime('%s'),
+                      until_time.strftime('%s'))

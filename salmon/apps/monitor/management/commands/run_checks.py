@@ -69,13 +69,3 @@ class Command(BaseCommand):
                                          check=check,
                                          minion=minion,
                                          failed=failed)
-
-            # Store the value in the whisper database
-            check_name = check.name.replace(" ", "_")
-            # TODO: Find a better way. The issue is that some check_name
-            # contains / so we need to replace them by something that 
-            # does not cause issue
-            check_name = check_name.replace("/", "_")
-            wsp_db = graph.WhisperDatabase("%s__%s" % (name, check_name))
-            wsp_db.get_or_create()
-            wsp_db.update(value)

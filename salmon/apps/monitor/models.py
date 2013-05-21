@@ -1,8 +1,10 @@
+import os
 from django.db import models
 from django.utils import timezone
+from django.utils.text import get_valid_filename
 from django.conf import settings
 
-from . import utils
+from . import utils, graph
 
 
 class Check(models.Model):
@@ -40,3 +42,27 @@ class Result(models.Model):
     @property
     def cleaned_result(self):
         return utils.TypeTranslate(self.result_type).cast(self.result)
+
+    @property
+    def whisper_filename(self):
+        """Build a file path to the Whisper database"""
+        return get_valid_filename("{}__{}.wsp".format(
+            self.minion.name, self.check.name))
+
+    def get_or_create_whisper(self):
+        """
+        Gets a Whisper DB instance.
+        Creates it if it doesn't exist.
+        """
+        return graph.WhisperDatabase(self.whisper_filename)
+
+    def get_history(self, from_date, to_date=None):
+        """Loads in historical data from Whisper database"""
+        return self.get_or_create_whisper().fetch(from_date, to_date)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # Store the value in the whisper database
+            wsp = self.get_or_create_whisper()
+            wsp.update(value)
+        return super(Result, self).save(*args, **kwargs)

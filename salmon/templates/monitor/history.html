@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block head_title %}: {{ minion.name }}{% endblock %}
+{% block content %}
+    <div class="row">
+    {% for graph in graphs %}
+    <div class="span5{% cycle '' ' offset2' %}">
+        {{ graph.name }}
+    </div>
+    {% endfor %}
+    </div>
+{% endblock %}
