@@ -1,7 +1,7 @@
-from datetime import datetime
-import time
+from datetime import datetime, timedelta
 import os
 import whisper
+from random import randint
 
 from django.conf import settings
 
@@ -76,3 +76,14 @@ class WhisperDatabase(object):
         until_time = until_time or datetime.now()
         return whisper.fetch(self.path, from_time.strftime('%s'),
                              until_time.strftime('%s'))
+
+
+def create_test_database(path):
+    wsp = WhisperDatabase(path)
+    now = datetime.now()
+    datapoints = []
+    datapoints = [(now.strftime("%s"), 0)]
+    for i in range(1000):
+        t = now + timedelta(minutes=i*5)
+        datapoints.append((t.strftime("%s"), randint(1, 100)))
+    wsp._update(datapoints)
