@@ -1,4 +1,5 @@
 import datetime
+import json
 from django.shortcuts import render, get_object_or_404
 
 from . import models
@@ -31,9 +32,12 @@ def history(request, name):
         result = check.result_set.filter(minion=minion,
                                          timestamp=check.last_run)
         if result:
+            values, times = result[0].get_history(from_date=since)
+            # javascript uses milliseconds since epoch
+            js_data = zip(map(lambda x: x * 1000, times), values)
             graphs.append({
                 'name': result[0].check.name,
-                'data': result[0].get_history(from_date=since),
+                'data': json.dumps(js_data),
             })
 
     return render(request, 'monitor/history.html', {
