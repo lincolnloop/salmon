@@ -1,8 +1,9 @@
+import os
 import datetime
 import json
 from django.shortcuts import render, get_object_or_404
-
-from . import models
+from django.conf import settings
+from . import models, graph
 
 
 def dashboard(request):
@@ -32,9 +33,13 @@ def history(request, name):
         result = check.result_set.filter(minion=minion,
                                          timestamp=check.last_run)
         if result:
-            values, times = result[0].get_history(from_date=since)
+            # create test databases
+            # db_file = os.path.join(settings.SALMON_WHISPER_DB_PATH,
+            #                        result[0].whisper_filename)
+            # graph.create_test_database(db_file)
+            history = result[0].get_history(from_date=since)
             # javascript uses milliseconds since epoch
-            js_data = zip(map(lambda x: x * 1000, times), values)
+            js_data = map(lambda x: (x[0] * 1000, x[1]), history)
             graphs.append({
                 'name': result[0].check.name,
                 'data': json.dumps(js_data),
