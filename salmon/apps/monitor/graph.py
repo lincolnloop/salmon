@@ -15,7 +15,8 @@ class WhisperDatabase(object):
 
     def get_or_create(self):
         if not os.path.exists(self.path):
-            archives = [whisper.parseRetentionDef(settings.ARCHIVES)]
+            archives = [whisper.parseRetentionDef(retentionDef)
+                        for retentionDef in settings.ARCHIVES.split(",")]
             whisper.create(self.path, archives,
                            xFilesFactor=settings.XFILEFACTOR,
                            aggregationMethod=settings.AGGREGATION_METHOD)
