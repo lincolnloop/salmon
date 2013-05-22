@@ -3,7 +3,9 @@ from tempfile import mkdtemp
 import os
 import shutil
 
+from django.core.urlresolvers import reverse
 from django.test import TestCase
+
 
 from .graph import WhisperDatabase
 
@@ -28,9 +30,15 @@ class WhisperDatabaseTest(TestCase):
     def test_database_update(self):
         self.wsp_db.update("25%")
         now = datetime.now()
-
-        timeinfo, results = self.wsp_db.fetch(now-timedelta(minutes=5), now)
-        self.assertEqual(results, [25])
-
+        results = self.wsp_db.fetch(now-timedelta(minutes=5), now)
+        self.assertEqual(results[0][1], 25)
 
 
+class MonitorUrlTest(TestCase):
+    def setUp(self):
+        pass
+
+    def test_dashboard_get(self):
+        url = reverse("dashboard")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
