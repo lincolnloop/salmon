@@ -20,4 +20,6 @@ class Command(BaseCommand):
                     help='Interval in minutes between each result'))
 
     def handle(self, *args, **options):
+        print("Generating sample data ....")
+        print("This operation will take few seconds.")
         generate_sample_data(options["point_numbers"], options["interval"])
