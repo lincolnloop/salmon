@@ -12,6 +12,7 @@ setup(
     license='LICENSE',
     install_requires=[
         'django==1.5.1',
+        'django-discover-runner==0.4.0',
         'south==0.7.6',
         'pyyaml==3.10',
         'logan==0.5.5',

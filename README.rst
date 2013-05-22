@@ -1,6 +1,9 @@
 salmon
 ======
 
+.. image:: https://secure.travis-ci.org/lincolnloop/salmon.png?branch=master
+   :target: http://travis-ci.org/lincolnloop/salmon
+
 A multi-server monitoring system built on top of `Salt <http://www.saltstack.org>`_ using Django.
 
 The project currently isn't much more than proof-of-concept. I'm interested in exploring its usefulness as both an alerting system like `monit <http://mmonit.com/monit/>`_ and a monitoring system like `munin <http://munin-monitoring.org/>`_ (perhaps using `Graphite's whisper database <http://graphite.readthedocs.org/en/latest/whisper.html>`_). 
