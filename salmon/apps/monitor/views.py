@@ -17,8 +17,8 @@ def dashboard(request):
             continue
 
         latest_results.append(result)
-        for result in latest_results:
-            minions.setdefault(result.minion, []).append(result)
+    for result in latest_results:
+        minions.setdefault(result.minion, []).append(result)
     if request.META.get('HTTP_X_PJAX', False):
         parent_template = 'pjax.html'
     else:
