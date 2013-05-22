@@ -41,6 +41,8 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
 )
 
+TEST_RUNNER = 'discover_runner.DiscoverRunner'
+
 #==============================================================================
 # Calculation of directories relative to the project module location
 #==============================================================================
