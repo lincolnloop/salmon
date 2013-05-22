@@ -18,6 +18,7 @@ class Check(models.Model):
         return '{} {}'.format(self.target, self.function)
 
 
+
 class Minion(models.Model):
     """A single minion surfaced by a Salt call"""
     name = models.CharField(max_length=255)

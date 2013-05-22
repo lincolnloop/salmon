@@ -71,3 +71,9 @@ class MonitorUrlTest(BaseTestCase):
         url = reverse("dashboard")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_history_get(self):
+        url = self.minion.get_absolute_url()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["graphs"]), 1)
