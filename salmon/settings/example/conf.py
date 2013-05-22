@@ -9,4 +9,4 @@ SALMON_WHISPER_DB_PATH = os.path.expanduser('~/.salmon/whisper')
 # ==============================================================
 XFILEFACTOR = 0.5
 AGGREGATION_METHOD = "average"
-ARCHIVES = "30s:8"
+ARCHIVES = "5m:1d,30m:7d,1d:1y"

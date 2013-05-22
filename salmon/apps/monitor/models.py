@@ -1,8 +1,7 @@
-import os
 from django.db import models
+from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.utils.text import get_valid_filename
-from django.conf import settings
 
 from . import utils, graph
 
@@ -25,6 +24,9 @@ class Minion(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("history", kwargs={"name": self.name})
 
 
 class Result(models.Model):
