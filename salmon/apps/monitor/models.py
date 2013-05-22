@@ -12,6 +12,7 @@ class Check(models.Model):
     function = models.CharField(max_length=255)
     name = models.CharField(max_length=255, blank=True)
     active = models.BooleanField(default=True)
+    # TODO: Remove this field once we have south setup
     last_run = models.DateTimeField(default=timezone.now, null=True)
 
     def __unicode__(self):
