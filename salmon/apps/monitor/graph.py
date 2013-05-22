@@ -30,16 +30,9 @@ class WhisperDatabase(object):
         """
         This method try to convert a value to a float
         """
-        if isinstance(value, float):
-            return value
-        elif isinstance(value, int):
-            return float(value)
-        elif isinstance(value, str) or isinstance(value, unicode):
-            try:
-                return float(value)
-            except ValueError as err:
-                # the value might be a %, remove the sign and try again
-                return float(value.replace("%", ""))
+        if isinstance(value, str) or isinstance(value, unicode):
+            value = value.replace("%", "")
+        return float(value)
 
     def update(self, value):
         value = self._floatify(value)
