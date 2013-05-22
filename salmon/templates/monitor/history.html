@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends parent_template %}
 {% block head_title %}: {{ minion.name }}{% endblock %}
 
 {% block content %}
@@ -6,7 +6,7 @@
     {% for graph in graphs %}
     <div class="span5{% cycle '' ' offset2' %}">
         <h4>{{ graph.name }}</h4>
-        <div id="{{ graph.name|slugify }}" style="width:380px;height:300px"></div>
+        <div id="{{ graph.name|slugify }}" class="graph" style="width:380px;height:300px" data-points="{{ graph.data }}"></div>
     </div>
     {% endfor %}
     </div>
@@ -16,27 +16,48 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.flot.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.flot.time.min.js"></script>
     <script type="text/javascript">
-        (function ($) {
-            var graphOptions = {
-                xaxis: { mode: "time" },
-                yaxis: { min:0 },
-                series: {
-                    lines: {
-                        fill: true,
-                        lineWidth:3,
-                        fillColor: 'rgba(151,187,205,0.5)'
+        (function ($, app) {
+            var plots = {},
+                graphOptions = {
+                    xaxis: { mode: "time" },
+                    yaxis: { min:0 },
+                    series: {
+                        lines: {
+                            fill: true,
+                            lineWidth:3,
+                            fillColor: 'rgba(151,187,205,0.5)'
+                        },
+                        shadowSize: 0
                     },
-                    shadowSize: 0
-                },
-                colors: ['rgba(151,187,205,1)'],
-                grid: {
-                    borderWidth: 0,
-                    color: '#ddd'
-                }
-            };
-            {% for graph in graphs %}
-                $("#{{ graph.name|slugify }}").plot([{{ graph.data }}], graphOptions);
-            {% endfor %}
-        })(jQuery);
+                    colors: ['rgba(151,187,205,1)'],
+                    grid: {
+                        borderWidth: 0,
+                        color: '#ddd'
+                    }
+                };
+            function drawGraphs () {
+                $('.graph').each(function (idx, el) {
+                    var $graph = $(el),
+                        data = $graph.data('points');
+                    $graph.plot([data], graphOptions);
+                });
+            }
+
+            function updateContent () {
+                $.ajax({
+                    url: window.location.href,
+                    type: 'GET',
+                    headers: {'X-PJAX': 'true'},
+                    success: function (data) {
+                        $('#content').html(data);
+                        app.updateTimestamps();
+                        drawGraphs();
+                    }
+                });
+            }
+            drawGraphs();
+            // update every minute
+            setInterval(updateContent, 60000);
+        })(jQuery, window.app);
     </script>
 {% endblock %}

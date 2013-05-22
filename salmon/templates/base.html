@@ -34,7 +34,7 @@
         {% block content %}{% endblock %}
     </div>
     <div class="row" id="footer">
-        {% block footer %}{% endblock %}
+        <p class="fine-print">Last updated: <span id="last-update"></span></p>
         <div class="span2 color1"></div>
         <div class="span2 color2"></div>
         <div class="span2 color3"></div>
@@ -43,6 +43,18 @@
     </div>
 </div>
 <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-2.0.0.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.timeago.js"></script>
+    <script type="text/javascript">
+    window.app = window.app || {};
+    window.app.updateTimestamps = (function ($) {
+        function updateTimestamps () {
+            $('#last-update').text(new Date().toLocaleTimeString());
+            $("time.timeago").timeago();
+        }
+        return updateTimestamps;
+    })(jQuery);
+    window.app.updateTimestamps();
+    </script>
 {% block extrajs %}{% endblock %}
 </body>
 </html>
