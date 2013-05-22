@@ -34,9 +34,9 @@ class WhisperDatabase(object):
             value = value.replace("%", "")
         return float(value)
 
-    def update(self, value):
+    def update(self, timestamp, value):
         value = self._floatify(value)
-        self._update([(datetime.now().strftime("%s"), value)])
+        self._update([(timestamp.strftime("%s"), value)])
 
     def _update(self, datapoints):
         """

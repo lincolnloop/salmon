@@ -68,5 +68,5 @@ class Result(models.Model):
         if not self.pk:
             # Store the value in the whisper database
             wsp = self.get_or_create_whisper()
-            wsp.update(self.cleaned_result)
+            wsp.update(self.timestamp, self.cleaned_result)
         return super(Result, self).save(*args, **kwargs)

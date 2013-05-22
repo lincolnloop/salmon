@@ -25,17 +25,17 @@ def generate_sample_data(point_numbers, interval):
 
     This method returns a tuple (minion, check)
     """
-    minion = Minion.objects.create(name="minion.local")
-    check = Check.objects.create(target="*",
-                                 function="ps.virtual_memory_usage",
-                                 name="Memory Usage",
-                                 active=True)
+    minion, created = Minion.objects.get_or_create(name="minion.local")
+    check, created = Check.objects.get_or_create(target="*",
+                                                 function="ps.virtual_memory_usage",
+                                                 name="Memory Usage",
+                                                 active=True)
 
     now = datetime.now()
     for i in range(point_numbers):
         Result.objects.create(check=check,
                               minion=minion,
-                              timestamp=now-timedelta(minutes=interval),
+                              timestamp=now-timedelta(minutes=interval*i),
                               result=str(randint(1, 100)),
                               result_type="float",
                               failed=False)

@@ -1,6 +1,5 @@
 import json
 import subprocess
-from datetime import datetime
 from optparse import make_option
 import yaml
 
@@ -8,7 +7,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from salmon.apps.monitor import models, utils, graph
+from salmon.apps.monitor import models, utils
 
 
 class Command(BaseCommand):

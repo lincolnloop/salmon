@@ -41,7 +41,6 @@ def history(request, name):
                                            .order_by("-timestamp")[0])
         except IndexError:
             continue
-
         latest_results.append(result)
 
         if latest_results:
