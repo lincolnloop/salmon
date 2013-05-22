@@ -3,7 +3,7 @@
 {% block head_title %}: Status{% endblock %}
 {% block content %}
     {% for minion, results in minions.items %}
-    <h2>{{ minion }}</h2>
+    <h2><a href="{% url "history" minion.name %}">{{ minion.name }}</a></h2>
     <table class="table table-striped table-hover">
         <thead>
             <tr>
@@ -28,31 +28,23 @@
     </div>
     {% endfor %}
 {% endblock content %}
-{% block footer %}
-    <p class="fine-print">Last updated: <span id="last-update"></span></p>
-{% endblock %}
 {% block extrajs %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.timeago.js"></script>
     <script type="text/javascript">
-    $(document).ready(function () {
-        function updateTimestamps () {
-            $('#last-update').text(new Date().toLocaleTimeString());
-            $("time.timeago").timeago();
-        }
-        function updateContent () {
-            $.ajax({
-                url: window.location.href,
-                type: 'GET',
-                headers: {'X-PJAX': 'true'},
-                success: function (data) {
-                    $('#content').html(data);
-                    updateTimestamps();
-                }
-            });
-        }
-        updateTimestamps();
-        // update every minute
-        setInterval(updateContent, 60000);
-    });
+        (function ($, app) {
+            function updateContent () {
+                $.ajax({
+                    url: window.location.href,
+                    type: 'GET',
+                    headers: {'X-PJAX': 'true'},
+                    success: function (data) {
+                        $('#content').html(data);
+                        app.updateTimestamps();
+                    }
+                });
+            }
+            app.updateTimestamps();
+            // update every minute
+            setInterval(updateContent, 60000);
+        })(jQuery, window.app);
     </script>
 {% endblock %}

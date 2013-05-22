@@ -44,8 +44,12 @@ def history(request, name):
                 'name': result[0].check.name,
                 'data': json.dumps(js_data),
             })
-
+    if request.META.get('HTTP_X_PJAX', False):
+        parent_template = 'pjax.html'
+    else:
+        parent_template = 'base.html'
     return render(request, 'monitor/history.html', {
         'minion': minion,
         'graphs': graphs,
+        'parent_template': parent_template,
     })
