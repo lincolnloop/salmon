@@ -1,7 +1,13 @@
 from django.conf import settings
 
 def build_command(target, function, output='json'):
-    args = '--static --out={} \\\"{}\\\" {}'.format(output, target, function)
+    # FIXME: this is a bad way to build up the command
+    if settings.SALT_COMMAND.startswith('ssh'):
+        quote = '\\\"'
+    else:
+        quote = '"'
+    args = '--static --out={output} {quote}{target}{quote} {function}'.format(
+        output=output, quote=quote, target=target, function=function)
     cmd = settings.SALT_COMMAND.format(args=args)
     return cmd
 
