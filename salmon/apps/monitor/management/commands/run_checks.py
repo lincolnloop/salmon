@@ -29,6 +29,8 @@ class Command(BaseCommand):
             self.stdout.write("Printing checks [fake mode] ...")
         else:
             self.stdout.write("Running checks...")
+
+        self.checked = []
         for target, functions in config.items():
             for func_name, func_opts in functions.items():
                 cmd = utils.build_command(target, func_name)
@@ -39,6 +41,8 @@ class Command(BaseCommand):
 
                 else:
                     self._run_cmd(target, func_name, func_opts, cmd)
+        models.Check.objects.exclude(pk__in=self.checked).update(active=False)
+
 
     def _run_cmd(self, target, func_name, func_opts, cmd):
         check, _ = models.Check.objects.get_or_create(
@@ -49,6 +53,7 @@ class Command(BaseCommand):
         result = subprocess.check_output(cmd, shell=True)
         check.last_run = timestamp
         check.active = True
+        self.checked.append(check.pk)
         check.save()
         try:
             parsed = json.loads(result)
