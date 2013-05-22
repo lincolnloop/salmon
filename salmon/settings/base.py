@@ -136,7 +136,7 @@ AUTHENTICATION_BACKENDS += (
 # SALT_COMMAND = 'ssh example.com "sudo su - salmon  -s /bin/bash -c \'salt {args} \'\"'
 
 # work-around for https://github.com/saltstack/salt/issues/4454
-SALT_COMMAND = '/usr/bin/python /usr/bin/salt'
+SALT_COMMAND = '/usr/bin/python /usr/bin/salt {args}'
 
 # Web Service
 WEB_HOST = 'localhost'
