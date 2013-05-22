@@ -8,6 +8,7 @@ def build_command(target, function, output='json'):
 
 
 def check_failed(value, opts):
+    import ipdb; ipdb.set_trace()
     if isinstance(value, basestring):
         value = TypeTranslate(opts['type']).cast(value)
     success = eval(opts['assert'].format(value=value))
