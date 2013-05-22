@@ -2,6 +2,7 @@
 {% block head_title %}: {{ minion.name }}{% endblock %}
 
 {% block content %}
+    <h2>{{ minion.name }}</h2>
     <div class="row">
     {% for graph in graphs %}
     <div class="span5{% cycle '' ' offset2' %}">
