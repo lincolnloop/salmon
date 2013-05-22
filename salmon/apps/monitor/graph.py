@@ -32,7 +32,7 @@ class WhisperDatabase(object):
         """
         if isinstance(value, float):
             return value
-        elif isinstance(value, int):
+        elif isinstance(value, int) or isinstance(value, bool):
             return float(value)
         elif isinstance(value, str) or isinstance(value, unicode):
             try:

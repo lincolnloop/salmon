@@ -31,6 +31,3 @@ class WhisperDatabaseTest(TestCase):
 
         timeinfo, results = self.wsp_db.fetch(now-timedelta(minutes=5), now)
         self.assertEqual(results, [25])
-
-
-
