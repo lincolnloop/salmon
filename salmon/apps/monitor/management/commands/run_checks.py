@@ -45,9 +45,9 @@ class Command(BaseCommand):
         check, _ = models.Check.objects.get_or_create(
             target=target, function=func_name,
             name=func_opts.get('name', func_name))
-        self.stdout.write("+ {}".format(' '.join(cmd)))
+        self.stdout.write("+ {}".format(cmd))
         timestamp = timezone.now()
-        result = subprocess.check_output(cmd)
+        result = subprocess.check_output(cmd, shell=True)
         check.last_run = timestamp
         check.active = True
         check.save()

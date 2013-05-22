@@ -37,7 +37,7 @@ def history(request, name):
             #db_file = os.path.join(settings.SALMON_WHISPER_DB_PATH,
             #                       result[0].whisper_filename)
             #graph.create_test_database(db_file)
-            #history = result[0].get_history(from_date=since)
+            history = result[0].get_history(from_date=since)
             # javascript uses milliseconds since epoch
             js_data = map(lambda x: (x[0] * 1000, x[1]), history)
             graphs.append({

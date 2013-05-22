@@ -2,13 +2,13 @@ from django.conf import settings
 
 
 def build_command(target, function, output='json'):
-    cmd_list = settings.SALT_COMMAND.split()
-    cmd_list.extend(['--static', '--out={}'.format(output), target])
-    cmd_list.extend(function.split())
-    return cmd_list
+    args = '--static --out={} \\\"{}\\\" {}'.format(output, target, function)
+    cmd = settings.SALT_COMMAND.format(args=args)
+    return cmd
 
 
 def check_failed(value, opts):
+    import ipdb; ipdb.set_trace()
     if isinstance(value, basestring):
         value = TypeTranslate(opts['type']).cast(value)
     success = eval(opts['assert'].format(value=value))
