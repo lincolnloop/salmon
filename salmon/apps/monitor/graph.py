@@ -74,8 +74,17 @@ class WhisperDatabase(object):
         Returns None if no data can be returned
         """
         until_time = until_time or datetime.now()
-        return whisper.fetch(self.path, from_time.strftime('%s'),
-                             until_time.strftime('%s'))
+        time_info, values = whisper.fetch(self.path,
+                                          from_time.strftime('%s'),
+                                          until_time.strftime('%s'))
+        # build up a list of (timestamp, value)
+        start_time, end_time, step = time_info
+        current = start_time
+        times = []
+        while current <= end_time:
+            times.append(current)
+            current += step
+        return zip(times, values)
 
 
 def create_test_database(path):

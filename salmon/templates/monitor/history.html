@@ -1,22 +1,23 @@
 {% extends "base.html" %}
 {% block head_title %}: {{ minion.name }}{% endblock %}
-{% block extrahead %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-2.0.0.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.flot.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.flot.time.min.js"></script>
-{% endblock %}
+
 {% block content %}
     <div class="row">
     {% for graph in graphs %}
-    {% with id=graph.name|slugify %}
     <div class="span5{% cycle '' ' offset2' %}">
         <h4>{{ graph.name }}</h4>
-        <div id="{{ id }}" style="width:300px;height:300px"></div>
+        <div id="{{ graph.name|slugify }}" style="width:380px;height:300px"></div>
     </div>
+    {% endfor %}
+    </div>
+{% endblock %}
+
+{% block extrajs %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.flot.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.flot.time.min.js"></script>
     <script type="text/javascript">
-        (function () {
-            var data = {{ graph.data }};
-            $("#{{ id }}").plot([data], {
+        (function ($) {
+            var graphOptions = {
                 xaxis: { mode: "time" },
                 yaxis: { min:0 },
                 series: {
@@ -27,11 +28,15 @@
                     },
                     shadowSize: 0
                 },
-                colors: ['rgba(151,187,205,1)']
-            });
-        })();
+                colors: ['rgba(151,187,205,1)'],
+                grid: {
+                    borderWidth: 0,
+                    color: '#ddd'
+                }
+            };
+            {% for graph in graphs %}
+                $("#{{ graph.name|slugify }}").plot([{{ graph.data }}], graphOptions);
+            {% endfor %}
+        })(jQuery);
     </script>
-    {% endwith %}
-    {% endfor %}
-    </div>
 {% endblock %}
