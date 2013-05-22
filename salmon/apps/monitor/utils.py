@@ -1,6 +1,5 @@
 from django.conf import settings
 
-
 def build_command(target, function, output='json'):
     args = '--static --out={} \\\"{}\\\" {}'.format(output, target, function)
     cmd = settings.SALT_COMMAND.format(args=args)
@@ -8,7 +7,6 @@ def build_command(target, function, output='json'):
 
 
 def check_failed(value, opts):
-    import ipdb; ipdb.set_trace()
     if isinstance(value, basestring):
         value = TypeTranslate(opts['type']).cast(value)
     success = eval(opts['assert'].format(value=value))

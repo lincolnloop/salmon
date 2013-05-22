@@ -13,32 +13,42 @@ from django.test import TestCase
 from .graph import WhisperDatabase
 from .models import Minion, Check, Result
 
-
 POINT_NUMBERS= 1000
 INTERVAL_MIN=5
 
+def generate_sample_data(point_numbers, interval):
+    """
+    This method generate sample data and populate the databases
+
+        :point_numbers: is an int that defines the number of results
+        :interval: is an int that defines the interval between each results
+
+    This method returns a tuple (minion, check)
+    """
+    minion = Minion.objects.create(name="minion.local")
+    check = Check.objects.create(target="*",
+                                 function="ps.virtual_memory_usage",
+                                 name="Memory Usage",
+                                 active=True)
+
+    now = datetime.now()
+    for i in range(point_numbers):
+        Result.objects.create(check=check,
+                              minion=minion,
+                              timestamp=now-timedelta(minutes=interval),
+                              result=str(randint(1, 100)),
+                              result_type="float",
+                              failed=False)
+
+    return (minion, check)
 @override_settings(SALMON_WHISPER_DB_PATH=mkdtemp())
 class BaseTestCase(TestCase):
     def setUp(self):
-        self.minion = Minion.objects.create(name="minion.local")
-        self.check = Check.objects.create(target="*",
-                                          function="ps.virtual_memory_usage",
-                                          name="Memory Usage",
-                                          active=True)
-        self.populate_results(POINT_NUMBERS, INTERVAL_MIN)
+        self.minion, self.check = generate_sample_data(POINT_NUMBERS,
+                                                       INTERVAL_MIN)
 
     def tearDown(self):
         shutil.rmtree(settings.SALMON_WHISPER_DB_PATH)
-
-    def populate_results(self, point_numbers, interval):
-        now = datetime.now()
-        for i in range(point_numbers):
-            Result.objects.create(check=self.check,
-                                  minion=self.minion,
-                                  timestamp=now-timedelta(minutes=interval),
-                                  result=str(randint(1, 100)),
-                                  result_type="float",
-                                  failed=False)
 
 
 class WhisperDatabaseTest(BaseTestCase):
