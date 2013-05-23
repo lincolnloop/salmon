@@ -38,7 +38,7 @@ def history(request, name):
     latest_results = models.Result.objects.raw("""
         SELECT id, check_id, MAX("timestamp")
         FROM "monitor_result"
-        GROUP BY "monitor_result"."check_id"
+        GROUP BY "monitor_result"."minion_id", "monitor_result"."check_id"
         HAVING minion_id={} AND check_id IN {};""".format(
         minion.pk, tuple(active_checks)))
     for result in latest_results:
