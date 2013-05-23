@@ -32,14 +32,16 @@ def history(request, name):
     minion = get_object_or_404(models.Minion, name=name)
     since = datetime.datetime.now() - datetime.timedelta(hours=12)
     graphs = []
-    for check in models.Check.objects.filter(active=True):
-        try:
-            result = (models.Result.objects.filter(check_id=check.pk,
-                                                   minion_id=minion.pk)
-                                           .order_by("-timestamp")[0])
-        except IndexError:
-            continue
-
+    active_checks = (models.Check.objects.filter(active=True)
+                                         .values_list('pk', flat=True))
+    # Get the newest result for every active check
+    latest_results = models.Result.objects.raw("""
+        SELECT id, check_id, MAX("timestamp")
+        FROM "monitor_result"
+        GROUP BY "monitor_result"."check_id"
+        HAVING minion_id={} AND check_id IN {};""".format(
+        minion.pk, tuple(active_checks)))
+    for result in latest_results:
         # create test databases
         #db_file = os.path.join(settings.SALMON_WHISPER_DB_PATH,
         #                       result.whisper_filename)
