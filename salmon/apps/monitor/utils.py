@@ -1,5 +1,32 @@
 from django.conf import settings
 
+
+def get_latest_results(minion=None):
+    """
+    For each (or all) minions,
+    get the newest result for every active check
+    """
+    from . import models
+    active_checks = (models.Check.objects.filter(active=True)
+                                         .values_list('pk', flat=True))
+
+    if active_checks:
+        if len(active_checks) == 1:
+            having = "check_id = {}".format(active_checks[0])
+        else:
+            having = "check_id IN {}".format(tuple(active_checks))
+        if minion:
+            having += " AND minion_id={}".format(minion.pk)
+        latest_results = models.Result.objects.raw("""
+            SELECT id, check_id, MAX("timestamp")
+            FROM "monitor_result"
+            GROUP BY "monitor_result"."minion_id", "monitor_result"."check_id"
+            HAVING {};""".format(having))
+    else:
+        latest_results = []
+    return latest_results
+
+
 def build_command(target, function, output='json'):
     # FIXME: this is a bad way to build up the command
     if settings.SALT_COMMAND.startswith('ssh'):

@@ -2,21 +2,13 @@ import os
 import datetime
 import json
 from django.shortcuts import render, get_object_or_404
-from . import models
+from . import models, utils
 
 
 def dashboard(request):
     """Shows the latest results for each minion"""
     minions = {}
-    active_checks = (models.Check.objects.filter(active=True)
-                                         .values_list('pk', flat=True))
-    # For each minion, gets the newest result for every active check
-    latest_results = models.Result.objects.raw("""
-        SELECT id, check_id, MAX("timestamp")
-        FROM "monitor_result"
-        GROUP BY "monitor_result"."minion_id", "monitor_result"."check_id"
-        HAVING check_id IN {};""".format(tuple(active_checks)))
-    for result in latest_results:
+    for result in utils.get_latest_results():
         minions.setdefault(result.minion, []).append(result)
     if request.META.get('HTTP_X_PJAX', False):
         parent_template = 'pjax.html'
@@ -32,16 +24,7 @@ def history(request, name):
     minion = get_object_or_404(models.Minion, name=name)
     since = datetime.datetime.now() - datetime.timedelta(hours=12)
     graphs = []
-    active_checks = (models.Check.objects.filter(active=True)
-                                         .values_list('pk', flat=True))
-    # Get the newest result for every active check
-    latest_results = models.Result.objects.raw("""
-        SELECT id, check_id, MAX("timestamp")
-        FROM "monitor_result"
-        GROUP BY "monitor_result"."minion_id", "monitor_result"."check_id"
-        HAVING minion_id={} AND check_id IN {};""".format(
-        minion.pk, tuple(active_checks)))
-    for result in latest_results:
+    for result in utils.get_latest_results(minion=minion):
         # create test databases
         #db_file = os.path.join(settings.SALMON_WHISPER_DB_PATH,
         #                       result.whisper_filename)
