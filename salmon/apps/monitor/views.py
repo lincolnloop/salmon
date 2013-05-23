@@ -8,15 +8,14 @@ from . import models
 def dashboard(request):
     """Shows the latest results for each minion"""
     minions = {}
-    latest_results = []
-    for check in models.Check.objects.filter(active=True):
-        try:
-            result = (models.Result.objects.filter(check_id=check.pk)
-                                           .order_by("-timestamp")[0])
-        except IndexError:
-            continue
-
-        latest_results.append(result)
+    active_checks = (models.Check.objects.filter(active=True)
+                                         .values_list('pk', flat=True))
+    # For each minion, gets the newest result for every active check
+    latest_results = models.Result.objects.raw("""
+        SELECT id, check_id, MAX("timestamp")
+        FROM "monitor_result"
+        GROUP BY "monitor_result"."minion_id", "monitor_result"."check_id"
+        HAVING check_id IN {};""".format(tuple(active_checks)))
     for result in latest_results:
         minions.setdefault(result.minion, []).append(result)
     if request.META.get('HTTP_X_PJAX', False):
