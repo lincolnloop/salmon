@@ -6,7 +6,7 @@ from django.conf.global_settings import *   # pylint: disable=W0614,W0401
 # Generic Django project settings
 #==============================================================================
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 SITE_ID = 1

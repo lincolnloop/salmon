@@ -1,5 +1,7 @@
 import os
 SECRET_KEY = "{default_key}"
+ALLOWED_HOSTS = ["example.com"]
+
 
 # work-around for https://github.com/saltstack/salt/issues/4454
 SALT_COMMAND = '/usr/bin/python /usr/bin/salt {args}'

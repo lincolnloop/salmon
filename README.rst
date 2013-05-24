@@ -24,6 +24,7 @@ To bootstrap the project::
     pip install salmon
     salmon init
     salmon upgrade
+    salmon collectstatic
 
 Fire up the web server with::
 
