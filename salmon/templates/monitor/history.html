@@ -58,7 +58,7 @@
             }
             drawGraphs();
             // update every minute
-            setInterval(updateContent, 60000);
+            setInterval(updateContent, {{ refresh_interval_history }});
         })(jQuery, window.app);
     </script>
 {% endblock %}

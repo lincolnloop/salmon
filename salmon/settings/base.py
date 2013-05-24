@@ -61,7 +61,7 @@ if os.path.exists(os.path.join(PYTHON_BIN, 'activate_this.py')):
     # We're running with a virtualenv python executable.
     VAR_ROOT = os.path.join(os.path.dirname(PYTHON_BIN), 'var')
 elif ve_path and os.path.exists(os.path.join(ve_path, 'bin',
-        'activate_this.py')):
+                                             'activate_this.py')):
     # We're running in [virtualenv_root]/src/[project_name].
     VAR_ROOT = os.path.join(ve_path, 'var')
 else:
@@ -140,6 +140,9 @@ SALT_COMMAND = '/usr/bin/python /usr/bin/salt {args}'
 
 # Time (in minutes) to keep old results in the Django database
 EXPIRE_RESULTS = '60'
+
+# Interval in millisecond between each refresh of the history pages
+REFRESH_INTERVAL_HISTORY = 60 * 1000
 
 # Web Service
 WEB_HOST = 'localhost'

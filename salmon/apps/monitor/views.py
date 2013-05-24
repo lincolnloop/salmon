@@ -1,6 +1,7 @@
 import os
 import datetime
 import json
+from django.conf import settings
 from django.shortcuts import render, get_object_or_404
 from . import models, utils
 
@@ -44,4 +45,5 @@ def history(request, name):
         'minion': minion,
         'graphs': graphs,
         'parent_template': parent_template,
+        'refresh_interval_history': settings.REFRESH_INTERVAL_HISTORY,
     })
