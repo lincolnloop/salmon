@@ -13,13 +13,12 @@ from salmon.apps.monitor import models, utils
 class Command(BaseCommand):
     help = "Run Salt monitor checks"
     option_list = BaseCommand.option_list + (
-        make_option('--fake',
-                    action='store_true',
-                    dest='fake',
-                    default=False,
-                    help='Do not run the checks but print the command instead'),)
+        make_option('--fake', action='store_true', dest='fake', default=False,
+                    help='Do not run the checks '
+                         'but print the Salt command instead'),)
 
     def load_salmon_checks(self):
+        """Reads in checks.yaml and returns Python object"""
         checks_yaml = open(settings.SALMON_CHECKS_PATH).read()
         return yaml.safe_load(checks_yaml)
 
@@ -30,7 +29,7 @@ class Command(BaseCommand):
         else:
             self.stdout.write("Running checks...")
 
-        self.checked = []
+        self.active_checks = []
         for target, functions in config.items():
             for func_name, func_opts in functions.items():
                 cmd = utils.build_command(target, func_name)
@@ -41,28 +40,50 @@ class Command(BaseCommand):
 
                 else:
                     self._run_cmd(target, func_name, func_opts, cmd)
-        models.Check.objects.exclude(pk__in=self.checked).update(active=False)
+        if not options['fake']:
+            self.cleanup()
 
+    def cleanup(self):
+        """
+        Flag inactive checks and remove old results from database.
+        """
+        inactive_checks = models.Check.objects.exclude(
+            pk__in=self.active_checks)
+        self.stdout.write("{} checks deactivated".format(
+            inactive_checks.count()))
+        inactive_checks.update(active=False)
+
+        self.stdout.write("Removing old results...")
+        now = datetime.datetime.now()
+        expiration_date = now - datetime.timedelta(
+            minutes=settings.EXPIRE_RESULTS)
+        models.Results.objects.filter(timestamp__lt=expiration_date).delete()
 
     def _run_cmd(self, target, func_name, func_opts, cmd):
+        """
+        Runs salt checks and stores results to database.
+        """
         check, _ = models.Check.objects.get_or_create(
             target=target, function=func_name,
             name=func_opts.get('name', func_name))
         self.stdout.write("+ {}".format(cmd))
         timestamp = timezone.now()
+        # shell out to salt command
         result = subprocess.check_output(cmd, shell=True)
-        check.last_run = timestamp
-        check.active = True
-        self.checked.append(check.pk)
-        check.save()
+
+        if not check.active:
+            check.active = True
+            check.save()
+        self.active_checks.append(check.pk)
+
         try:
             parsed = json.loads(result)
         except ValueError:
             self.stdout.write("  Error parsing results")
             return
+
         # parse out minion names in the event of a wildcard target
         for name, raw_value in parsed.iteritems():
-            print("DEBUG: %s,%s" %(name, raw_value))
             value = utils.parse_value(raw_value, func_opts)
             self.stdout.write("  {}: {}".format(name, value))
             minion, _ = models.Minion.objects.get_or_create(name=name)

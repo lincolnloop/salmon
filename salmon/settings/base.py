@@ -138,6 +138,9 @@ AUTHENTICATION_BACKENDS += (
 # work-around for https://github.com/saltstack/salt/issues/4454
 SALT_COMMAND = '/usr/bin/python /usr/bin/salt {args}'
 
+# Time (in minutes) to keep old results in the Django database
+EXPIRE_RESULTS = '60'
+
 # Web Service
 WEB_HOST = 'localhost'
 WEB_PORT = 9000
