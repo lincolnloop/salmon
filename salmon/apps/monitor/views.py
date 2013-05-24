@@ -1,9 +1,8 @@
-import os
-import datetime
+from datetime import datetime, timedelta
 import json
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404
-from . import models, utils
+from . import models, utils, forms
 
 
 def dashboard(request):
@@ -23,14 +22,35 @@ def dashboard(request):
 
 def history(request, name):
     minion = get_object_or_404(models.Minion, name=name)
-    since = datetime.datetime.now() - datetime.timedelta(hours=12)
+    from_date = datetime.now()-timedelta(hours=12)
+    to_date = datetime.now()
+
+    initial = {
+        "from_date": from_date,
+        "to_date": to_date
+    }
+    if "from_date" in request.GET or "to_date" in request.GET:
+        data = request.GET.copy()
+        if not request.GET.get("from_date"):
+            data.setlist("from_date", [from_date])
+        if not request.GET.get("to_date"):
+            data.setlist("to_date", [to_date])
+        form = forms.FilterHistory(data, initial=initial)
+        if form.is_valid():
+            from_date = form.cleaned_data["from_date"] or from_date
+            to_date = form.cleaned_data["to_date"] or to_date
+    else:
+        form = forms.FilterHistory(initial=initial)
     graphs = []
+
     for result in utils.get_latest_results(minion=minion):
         # create test databases
         #db_file = os.path.join(settings.SALMON_WHISPER_DB_PATH,
         #                       result.whisper_filename)
         #graph.create_test_database(db_file)
-        history = result.get_history(from_date=since)
+        history = result.get_history(
+            from_date=from_date,
+            to_date=to_date)
         # javascript uses milliseconds since epoch
         js_data = map(lambda x: (x[0] * 1000, x[1]), history)
         graphs.append({
@@ -42,6 +62,7 @@ def history(request, name):
     else:
         parent_template = 'base.html'
     return render(request, 'monitor/history.html', {
+        'form': form,
         'minion': minion,
         'graphs': graphs,
         'parent_template': parent_template,
