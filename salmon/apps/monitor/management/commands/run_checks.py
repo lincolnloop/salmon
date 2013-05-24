@@ -47,11 +47,11 @@ class Command(BaseCommand):
         """
         Flag inactive checks and remove old results from database.
         """
-        inactive_checks = models.Check.objects.exclude(
-            pk__in=self.active_checks)
+        inactived_checks = models.Check.objects.exclude(
+            pk__in=self.active_checks, active=False)
         self.stdout.write("{} checks deactivated".format(
-            inactive_checks.count()))
-        inactive_checks.update(active=False)
+            inactived_checks.count()))
+        inactived_checks.update(active=False)
 
         self.stdout.write("Removing old results...")
         now = datetime.datetime.now()
