@@ -19,7 +19,6 @@ class Check(models.Model):
         return '{} {}'.format(self.target, self.function)
 
 
-
 class Minion(models.Model):
     """A single minion surfaced by a Salt call"""
     name = models.CharField(max_length=255)
@@ -68,5 +67,9 @@ class Result(models.Model):
         if not self.pk:
             # Store the value in the whisper database
             wsp = self.get_or_create_whisper()
-            wsp.update(self.timestamp, self.cleaned_result)
+            if isinstance(self.result, 'basestring'):
+                value = self.cleaned_result
+            else:
+                value = self.result
+            wsp.update(self.timestamp, value)
         return super(Result, self).save(*args, **kwargs)
