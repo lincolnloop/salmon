@@ -58,8 +58,12 @@
             }
             drawGraphs();
             // update every minute
+<<<<<<< HEAD
+            setInterval(updateContent, {{ refresh_interval_history }});
+=======
             setInterval(function () { app.updateContent(drawGraphs) },
-                        {{ refresh_interval_history }});
+                        60000);
+>>>>>>> JS organization and AJAX cache busting
         })(jQuery, window.app);
     </script>
 {% endblock %}

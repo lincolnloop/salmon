@@ -53,9 +53,14 @@ def history(request, name):
             to_date=to_date)
         # javascript uses milliseconds since epoch
         js_data = map(lambda x: (x[0] * 1000, x[1]), history)
+        if result.result_type.startswith('percentage'):
+            graph_type = 'percentage'
+        else:
+            graph_type = result.result_type
         graphs.append({
             'name': result.check.name,
             'data': json.dumps(js_data),
+            'type': graph_type,
         })
     if request.META.get('HTTP_X_PJAX', False):
         parent_template = 'pjax.html'

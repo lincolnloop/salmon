@@ -42,19 +42,9 @@
         <div class="span2 color5"></div>
     </div>
 </div>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-2.0.0.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.timeago.js"></script>
-    <script type="text/javascript">
-    window.app = window.app || {};
-    window.app.updateTimestamps = (function ($) {
-        function updateTimestamps () {
-            $('#last-update').text(new Date().toLocaleTimeString());
-            $("time.timeago").timeago();
-        }
-        return updateTimestamps;
-    })(jQuery);
-    window.app.updateTimestamps();
-    </script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery-2.0.0.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery.timeago.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/app/app.js"></script>
 {% block extrajs %}{% endblock %}
 </body>
 </html>
