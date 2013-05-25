@@ -22,8 +22,7 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.flot.time.min.js"></script>
     <script type="text/javascript">
         (function ($, app) {
-            var plots = {},
-                graphOptions = {
+            var graphOptions = {
                     xaxis: { mode: "time" },
                     yaxis: { min:0 },
                     series: {
@@ -40,6 +39,28 @@
                         color: '#ddd'
                     }
                 };
+            function getTimeStampedUrl() {
+                var url_search = window.location.search.substr(1);
+                var url_base = window.location.origin + window.location.pathname;
+                var query_params= decodeURIComponent(url_search).split("&");
+
+                // Build a dict with all the params from the url_base
+                var params = {};
+                var kv = [];
+                for (var i=0; i < query_params.length; i++) {
+                    kv =query_params[i].split("=");
+                    if (kv[0] !== "") {
+                        params[kv[0]] = kv[1];
+                    }
+                }
+
+                // Set a new timestamp in the params
+                params.timestamp = new Date().getTime();
+                url_search = $.param(params);
+                return url_base + "?"+ url_search;
+               }
+
+
             function drawGraphs () {
                 $('.graph').each(function (idx, el) {
                     var $graph = $(el),
@@ -50,7 +71,7 @@
 
             function updateContent () {
                 $.ajax({
-                    url: window.location.href,
+                    url: getTimeStampedUrl(),
                     type: 'GET',
                     headers: {'X-PJAX': 'true'},
                     success: function (data) {
@@ -60,6 +81,7 @@
                     }
                 });
             }
+
             drawGraphs();
             // update every minute
             setInterval(updateContent, {{ refresh_interval_history }});
