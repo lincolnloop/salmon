@@ -3,9 +3,11 @@
 
 {% block content %}
     <h2>{{ minion.name }}</h2>
-    <form action="{% url "history" name=minion.name %}" method="get" accept-charset="utf-8">
+    <form action="{% url "history" name=minion.name %}" method="get" accept-charset="utf-8" class="form-inline">
         {{ form.from_date }} {{ form.to_date }}
-        <input type="submit" value="Filter">
+        <div class="btn-group">
+            <button class="btn" type="submit">Filter</button>
+        </div>
     </form>
     <div class="row">
     {% for graph in graphs %}
