@@ -1,6 +1,8 @@
 import os
 SECRET_KEY = "{default_key}"
-ALLOWED_HOSTS = ["example.com"]
+
+# https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+# ALLOWED_HOSTS = ["salmon.example.com"]
 
 
 # work-around for https://github.com/saltstack/salt/issues/4454
