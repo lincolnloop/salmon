@@ -1,3 +1,4 @@
+import datetime
 import json
 import subprocess
 from optparse import make_option
@@ -57,7 +58,7 @@ class Command(BaseCommand):
         now = datetime.datetime.now()
         expiration_date = now - datetime.timedelta(
             minutes=settings.EXPIRE_RESULTS)
-        models.Results.objects.filter(timestamp__lt=expiration_date).delete()
+        models.Result.objects.filter(timestamp__lt=expiration_date).delete()
         self.stdout.write("Done!")
 
     def _run_cmd(self, target, func_name, func_opts, cmd):

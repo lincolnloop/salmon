@@ -141,7 +141,7 @@ AUTHENTICATION_BACKENDS += (
 SALT_COMMAND = '/usr/bin/python /usr/bin/salt {args}'
 
 # Time (in minutes) to keep old results in the Django database
-EXPIRE_RESULTS = '60'
+EXPIRE_RESULTS = 60
 
 # Interval in millisecond between each refresh of the history pages
 REFRESH_INTERVAL_HISTORY = 60 * 1000
