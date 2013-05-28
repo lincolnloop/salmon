@@ -14,7 +14,7 @@ class Check(models.Model):
     active = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return '{} {}'.format(self.target, self.function)
+        return '{} {} ({})'.format(self.target, self.function, self.name)
 
 
 class Minion(models.Model):
