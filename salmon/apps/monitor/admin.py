@@ -1,6 +1,7 @@
 from django.contrib import admin
 from . import models
 
+
 class ResultAdmin(admin.ModelAdmin):
     list_filter = ("minion", "check")
     date_hierarchy = "timestamp"

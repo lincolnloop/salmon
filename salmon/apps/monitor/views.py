@@ -44,10 +44,6 @@ def history(request, name):
     graphs = []
 
     for result in utils.get_latest_results(minion=minion):
-        # create test databases
-        #db_file = os.path.join(settings.SALMON_WHISPER_DB_PATH,
-        #                       result.whisper_filename)
-        #graph.create_test_database(db_file)
         history = result.get_history(
             from_date=from_date,
             to_date=to_date)

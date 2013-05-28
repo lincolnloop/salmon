@@ -12,7 +12,7 @@ from django.test import TestCase
 
 from .graph import WhisperDatabase
 from .models import Minion, Check, Result
-from .utils import get_latest_results
+from .utils import get_latest_results, build_command
 
 POINT_NUMBERS = 50
 INTERVAL_MIN = 5
@@ -118,3 +118,27 @@ class MonitorUtilsTest(BaseTestCase):
         self.assertEqual(
             [(r.minion.name, r.check.name) for r in latest_results],
             [(u'minion.local', u'Memory Usage')])
+
+
+class MonitorUtilsBuildCommmand(TestCase):
+    def setUp(self):
+        self.target = "*"
+        self.function = "disk.usage"
+
+    @override_settings(SALT_COMMAND='ssh example.com "sudo su - salmon  -s '+
+                                    '/bin/bash -c \'salt {args} \'\"')
+    def test_build_command_ssh(self):
+        expected_cmd = ('ssh example.com "sudo su - salmon  -s /bin/bash -c ' +
+                       '\'salt --static --out=json \\"*\\" ' +
+                       'disk.usage \'"')
+        cmd = build_command(self.target,
+                            self.function)
+        self.assertEqual(cmd, expected_cmd)
+
+    @override_settings(SALT_COMMAND='/usr/bin/python /usr/bin/salt {args}')
+    def test_build_command(self):
+        expected_cmd = ('/usr/bin/python /usr/bin/salt --static ' +
+                        '--out=json "*" disk.usage')
+        cmd = build_command(self.target,
+                            self.function)
+        self.assertEqual(cmd, expected_cmd)
