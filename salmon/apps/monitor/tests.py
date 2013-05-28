@@ -12,9 +12,11 @@ from django.test import TestCase
 
 from .graph import WhisperDatabase
 from .models import Minion, Check, Result
+from .utils import get_latest_results
 
-POINT_NUMBERS= 1000
-INTERVAL_MIN=5
+POINT_NUMBERS = 50
+INTERVAL_MIN = 5
+
 
 def generate_sample_data(point_numbers, interval):
     """
@@ -23,29 +25,44 @@ def generate_sample_data(point_numbers, interval):
         :point_numbers: is an int that defines the number of results
         :interval: is an int that defines the interval between each results
 
-    This method returns a tuple (minion, check)
+    This method returns a tuple (minion, active_check, not_active_check)
     """
     minion, created = Minion.objects.get_or_create(name="minion.local")
-    check, created = Check.objects.get_or_create(target="*",
-                                                 function="ps.virtual_memory_usage",
-                                                 name="Memory Usage",
-                                                 active=True)
+    checks = []
+
+    check, created = Check.objects.get_or_create(
+        target="*",
+        function="ps.virtual_memory_usage",
+        name="Memory Usage",
+        active=True)
+    checks.append(check)
+
+    check, created = Check.objects.get_or_create(
+        target="*",
+        function="disk.usage",
+        name="Disk usage (not active)",
+        active=False)
+    checks.append(check)
 
     now = datetime.now()
     for i in range(point_numbers):
-        Result.objects.create(check=check,
-                              minion=minion,
-                              timestamp=now-timedelta(minutes=interval*i),
-                              result=str(randint(1, 100)),
-                              result_type="float",
-                              failed=False)
+        for check in checks:
+            Result.objects.create(
+                check=check,
+                minion=minion,
+                timestamp=now-timedelta(minutes=interval*i),
+                result=str(randint(1, 100)),
+                result_type="float",
+                failed=False)
 
-    return (minion, check)
+    return (minion, checks[0], checks[1])
+
+
 @override_settings(SALMON_WHISPER_DB_PATH=mkdtemp())
 class BaseTestCase(TestCase):
     def setUp(self):
-        self.minion, self.check = generate_sample_data(POINT_NUMBERS,
-                                                       INTERVAL_MIN)
+        self.minion, self.active_check, self.not_active_check = (
+            generate_sample_data(POINT_NUMBERS, INTERVAL_MIN))
 
     def tearDown(self):
         shutil.rmtree(settings.SALMON_WHISPER_DB_PATH)
@@ -65,7 +82,7 @@ class WhisperDatabaseTest(BaseTestCase):
 
     def test_database_update(self):
         now = datetime.now()
-        result = Result.objects.create(check=self.check,
+        result = Result.objects.create(check=self.active_check,
                                        minion=self.minion,
                                        timestamp=now,
                                        result="101",
@@ -87,3 +104,17 @@ class MonitorUrlTest(BaseTestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["graphs"]), 1)
+
+
+class MonitorUtilsTest(BaseTestCase):
+    def test_get_latest_results_for_all_minions(self):
+        latest_results = get_latest_results()
+        self.assertEqual(
+            [(r.minion.name, r.check.name) for r in latest_results],
+            [(u'minion.local', u'Memory Usage')])
+
+    def test_get_latest_results_a_minion(self):
+        latest_results = get_latest_results(minion=self.minion)
+        self.assertEqual(
+            [(r.minion.name, r.check.name) for r in latest_results],
+            [(u'minion.local', u'Memory Usage')])
