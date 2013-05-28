@@ -54,6 +54,9 @@ def parse_value(raw_value, opts):
         key_tree = opts['key'].split('.')
         for key in key_tree:
             value = value[key]
+    # Handle the special case where the value is None
+    elif value == None:
+        value = ""
     return value
 
 
@@ -65,7 +68,7 @@ class TypeTranslate(object):
         return getattr(self, 'to_{}'.format(self.cast_to))(value)
 
     def to_boolean(self, value):
-        return value == 'True'
+        return bool(value) == True
 
     def to_percentage(self, value):
         return self.to_float(value)

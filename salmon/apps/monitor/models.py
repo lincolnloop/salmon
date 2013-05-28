@@ -65,7 +65,7 @@ class Result(models.Model):
         if not self.pk:
             # Store the value in the whisper database
             wsp = self.get_or_create_whisper()
-            if isinstance(self.result, basestring):
+            if isinstance(self.result, basestring) or self.result_type:
                 value = self.cleaned_result
             else:
                 value = self.result

@@ -87,9 +87,11 @@ class Command(BaseCommand):
         # parse out minion names in the event of a wildcard target
         for name, raw_value in parsed.iteritems():
             value = utils.parse_value(raw_value, func_opts)
-            self.stdout.write("  {}: {}".format(name, value))
+            self.stdout.write("   {}: {}".format(name, value))
             minion, _ = models.Minion.objects.get_or_create(name=name)
             failed = utils.check_failed(value, func_opts)
+            self.stdout.write("   {}: {}".format("Assertion has failed",
+                                                 failed))
             models.Result.objects.create(timestamp=timestamp,
                                          result=value,
                                          result_type=func_opts['type'],

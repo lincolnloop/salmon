@@ -5,7 +5,7 @@ from . import models
 class ResultAdmin(admin.ModelAdmin):
     list_filter = ("minion", "check")
     date_hierarchy = "timestamp"
-    list_display = ("timestamp", "minion", "check", "result")
+    list_display = ("timestamp", "minion", "check", "failed", "result")
 
 
 class CheckAdmin(admin.ModelAdmin):
