@@ -1,0 +1,8 @@
+We encounter an issue while performing {{ check }}.
+
+Here it is the list of failures:
+
+{% for failure in last_failing_results %}
+  * [ {{ failure.timestamp }} ] {{ failure.minion }} -- {{ failure.result }}
+{% endfor %}
+

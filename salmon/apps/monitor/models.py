@@ -1,9 +1,17 @@
+import logging
+
 from django.db import models
+from django.conf import settings
+from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.text import get_valid_filename
 
 from . import utils, graph
+
+
+logger = logging.getLogger(__name__)
 
 
 class Check(models.Model):
@@ -11,10 +19,56 @@ class Check(models.Model):
     target = models.CharField(max_length=255)
     function = models.CharField(max_length=255)
     name = models.CharField(max_length=255, blank=True)
+    alert_email = models.EmailField(max_length=255, blank=True)
     active = models.BooleanField(default=True)
 
     def __unicode__(self):
         return '{} {} ({})'.format(self.target, self.function, self.name)
+
+    def send_alert_email(self):
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_emails = self.get_alert_emails()
+        subject = render_to_string(
+            "monitor/emails/subject_alert_email.txt",
+            {"check": self})
+        try:
+            last_successful_result = (self.result_set.filter(failed=False)
+                                                     .order_by("-timestamp")
+                                                     [0])
+        except IndexError as err:
+            last_successful_result = None
+
+        last_failing_results = (self.result_set.filter(failed=True,
+                                                        notified=False)
+                                                .order_by("-timestamp"))
+        if last_successful_result:
+            last_failing_results = last_failing_results.filter(
+                timestamp__gt=last_successful_result.timestamp)
+
+        if last_failing_results and to_emails:
+            msg = render_to_string(
+                "monitor/emails/message_alert_email.txt",
+                {
+                    "check": self,
+                    "last_failing_results": last_failing_results,
+                    "last_successful_result": last_successful_result,
+                })
+
+            try:
+                # TODO: Understand where the \n is coming from
+                send_mail(subject.strip("\n"), msg, from_email, to_emails)
+                last_failing_results.update(notified=True)
+            except Exception as err:
+                logger.exception("An error occured while sending alert emails")
+
+    def get_alert_emails(self):
+        """
+        This method return a list of email address that should be notified
+        for this check
+        """
+        if self.alert_email:
+            return self.alert_email.split(",")
+        return settings.ALERT_EMAIL
 
 
 class Minion(models.Model):
@@ -36,6 +90,7 @@ class Result(models.Model):
     result = models.TextField()
     result_type = models.CharField(max_length=30)
     failed = models.BooleanField(default=True)
+    notified = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.timestamp.isoformat()
