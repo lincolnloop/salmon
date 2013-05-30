@@ -8,6 +8,11 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding field 'Check.alert_emails'
+        db.add_column(u'monitor_check', 'alert_emails',
+                      self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True),
+                      keep_default=False)
+
         # Adding field 'Result.notified'
         db.add_column(u'monitor_result', 'notified',
                       self.gf('django.db.models.fields.BooleanField')(default=False),
@@ -15,6 +20,9 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+        # Deleting field 'Check.alert_emails'
+        db.delete_column(u'monitor_check', 'alert_emails')
+
         # Deleting field 'Result.notified'
         db.delete_column(u'monitor_result', 'notified')
 
@@ -23,7 +31,7 @@ class Migration(SchemaMigration):
         u'monitor.check': {
             'Meta': {'object_name': 'Check'},
             'active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'alert_email': ('django.db.models.fields.EmailField', [], {'max_length': '255', 'blank': 'True'}),
+            'alert_emails': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'function': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),

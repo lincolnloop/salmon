@@ -140,9 +140,9 @@ AUTHENTICATION_BACKENDS += (
 # work-around for https://github.com/saltstack/salt/issues/4454
 SALT_COMMAND = '/usr/bin/python /usr/bin/salt {args}'
 
-# ALERT_EMAIL is the default email if specified it is notified of any failing
-# check
-ALERT_EMAIL = None
+# ALERT_EMAILS is a list of emails, they are notified for each
+# `result.failed` unless specified otherwise in the checks.yaml
+ALERT_EMAILS = None
 
 # Time (in minutes) to keep old results in the Django database
 EXPIRE_RESULTS = 60

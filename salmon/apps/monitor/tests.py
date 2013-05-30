@@ -5,6 +5,7 @@ import shutil
 from random import randint
 
 from django.test.utils import override_settings
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.test import TestCase
@@ -120,17 +121,74 @@ class MonitorUtilsTest(BaseTestCase):
             [(u'minion.local', u'Memory Usage')])
 
 
+@override_settings(SALMON_WHISPER_DB_PATH=mkdtemp(),
+                   ALERT_EMAILS=["alert1@ll.com, alert2@ll.com"])
+class MonitorModelCheckTest(TestCase):
+    def setUp(self):
+        self.check, created = Check.objects.get_or_create(
+            target="*",
+            function="ps.virtual_memory_usage",
+            name="Memory Usage",
+            active=True)
+
+        self.check_with_emails, created = Check.objects.get_or_create(
+            target="*",
+            function="disk.usage",
+            name="Disk usage (not active)",
+            alert_emails=",".join(["yml@ll.com", "ipmb@ll.com"]),
+            active=False)
+
+        minion, created = Minion.objects.get_or_create(name="minion.local")
+        now = datetime.now()
+        for check in [self.check, self.check_with_emails]:
+            Result.objects.create(
+                check=check,
+                minion=minion,
+                timestamp=now-timedelta(minutes=INTERVAL_MIN*1),
+                result=str(randint(1, 100)),
+                result_type="float",
+                failed=True)
+            Result.objects.create(
+                check=check,
+                minion=minion,
+                timestamp=now-timedelta(minutes=INTERVAL_MIN*2),
+                result=str(randint(1, 100)),
+                result_type="float",
+                failed=False)
+
+    def tearDown(self):
+        try:
+            shutil.rmtree(settings.SALMON_WHISPER_DB_PATH)
+        except OSError:
+            # No reason to bell out if the temp directory has not been created
+            pass
+
+    def test_check_get_alert_emails(self):
+        self.assertEqual(self.check.get_alert_emails(),
+                         ['alert1@ll.com, alert2@ll.com'])
+
+    def test_check_with_emails_get_alert_emails(self):
+        self.assertEqual(self.check_with_emails.get_alert_emails(),
+                         ["yml@ll.com", "ipmb@ll.com"])
+
+    def test_check_send_alert_email(self):
+        self.check.send_alert_email()
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject.find(self.check.function) > 1,
+                         True)
+
+
 class MonitorUtilsBuildCommmand(TestCase):
     def setUp(self):
         self.target = "*"
         self.function = "disk.usage"
 
-    @override_settings(SALT_COMMAND='ssh example.com "sudo su - salmon  -s '+
+    @override_settings(SALT_COMMAND='ssh example.com "sudo su - salmon  -s ' +
                                     '/bin/bash -c \'salt {args} \'\"')
     def test_build_command_ssh(self):
         expected_cmd = ('ssh example.com "sudo su - salmon  -s /bin/bash -c ' +
-                       '\'salt --static --out=json \\"*\\" ' +
-                       'disk.usage \'"')
+                        '\'salt --static --out=json \\"*\\" ' +
+                        'disk.usage \'"')
         cmd = build_command(self.target,
                             self.function)
         self.assertEqual(cmd, expected_cmd)

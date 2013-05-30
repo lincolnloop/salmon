@@ -77,7 +77,7 @@ class Command(BaseCommand):
         check, _ = models.Check.objects.get_or_create(
             target=target, function=func_name,
             name=func_opts.get('name', func_name),
-            alert_email=func_opts.get('alert_email', ""))
+            alert_emails=",".join(func_opts.get('alert_emails', [])))
         self.stdout.write("+ {}".format(cmd))
         timestamp = timezone.now()
         # shell out to salt command

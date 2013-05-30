@@ -10,7 +10,7 @@ class ResultAdmin(admin.ModelAdmin):
 
 
 class CheckAdmin(admin.ModelAdmin):
-    list_display = ("name", "active", "target", "function", "alert_email")
+    list_display = ("name", "active", "target", "function", "alert_emails")
 
 
 admin.site.register(models.Check, CheckAdmin)

@@ -19,7 +19,8 @@ class Check(models.Model):
     target = models.CharField(max_length=255)
     function = models.CharField(max_length=255)
     name = models.CharField(max_length=255, blank=True)
-    alert_email = models.EmailField(max_length=255, blank=True)
+    alert_emails = models.CharField(max_length=255, blank=True,
+        help_text="Comma separated list of emails")
     active = models.BooleanField(default=True)
 
     def __unicode__(self):
@@ -66,9 +67,9 @@ class Check(models.Model):
         This method return a list of email address that should be notified
         for this check
         """
-        if self.alert_email:
-            return self.alert_email.split(",")
-        return settings.ALERT_EMAIL
+        if self.alert_emails:
+            return self.alert_emails.split(",")
+        return settings.ALERT_EMAILS
 
 
 class Minion(models.Model):

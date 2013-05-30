@@ -9,19 +9,19 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
 
-        # Changing field 'Check.alert_email'
-        db.alter_column(u'monitor_check', 'alert_email', self.gf('django.db.models.fields.EmailField')(default='', max_length=255))
+        # Changing field 'Check.alert_emails'
+        db.alter_column(u'monitor_check', 'alert_emails', self.gf('django.db.models.fields.CharField')(default='', max_length=255))
 
     def backwards(self, orm):
 
-        # Changing field 'Check.alert_email'
-        db.alter_column(u'monitor_check', 'alert_email', self.gf('django.db.models.fields.EmailField')(max_length=255, null=True))
+        # Changing field 'Check.alert_emails'
+        db.alter_column(u'monitor_check', 'alert_emails', self.gf('django.db.models.fields.CharField')(max_length=255, null=True))
 
     models = {
         u'monitor.check': {
             'Meta': {'object_name': 'Check'},
             'active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'alert_email': ('django.db.models.fields.EmailField', [], {'max_length': '255', 'blank': 'True'}),
+            'alert_emails': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'function': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
@@ -38,6 +38,7 @@ class Migration(SchemaMigration):
             'failed': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'minion': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['monitor.Minion']"}),
+            'notified': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'result': ('django.db.models.fields.TextField', [], {}),
             'result_type': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'})
