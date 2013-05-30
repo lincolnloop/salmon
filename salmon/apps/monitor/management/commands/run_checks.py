@@ -17,7 +17,7 @@ class Command(BaseCommand):
         make_option('--fake', action='store_true', dest='fake', default=False,
                     help='Do not run the checks '
                          'but print the Salt command instead'),
-        make_option('--alert', action='store_true', dest='alert',
+        make_option('--no-alert', action='store_true', dest='no_alert',
                     default=False,
                     help='Alert via email when a check fails'),)
 
@@ -47,7 +47,7 @@ class Command(BaseCommand):
                     self._run_cmd(target, func_name, func_opts, cmd)
         if not options['fake']:
             self.cleanup()
-        if options['alert'] and self.active_checks:
+        if not options['no_alert'] and self.active_checks:
             self.stdout.write("Alerting via email")
             for check in models.Check.objects.filter(
                     id__in=self.active_checks):
