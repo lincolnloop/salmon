@@ -90,8 +90,8 @@ class Command(BaseCommand):
 
         try:
             parsed = json.loads(result)
-        except ValueError:
-            self.stdout.write("  Error parsing results")
+        except ValueError as err:
+            self.stdout.write("  Error parsing results: %s" % err)
             return
 
         # parse out minion names in the event of a wildcard target
