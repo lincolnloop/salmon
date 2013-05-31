@@ -2,6 +2,8 @@
     service.status nginx:               # Salt function(s) to run against target
         type: boolean                   # Expected result type
         assert: "{value} == True"       # Fail is this evals to False
+        alert_emails:
+            - alert@example.com
     service.status postgresql:
         type: boolean
         assert: "{value} == True"

@@ -140,6 +140,10 @@ AUTHENTICATION_BACKENDS += (
 # work-around for https://github.com/saltstack/salt/issues/4454
 SALT_COMMAND = '/usr/bin/python /usr/bin/salt {args}'
 
+# ALERT_EMAILS is a list of emails, they are notified for each
+# `result.failed` unless specified otherwise in the checks.yaml
+ALERT_EMAILS = None
+
 # Time (in minutes) to keep old results in the Django database
 EXPIRE_RESULTS = 60
 
@@ -153,8 +157,67 @@ WEB_OPTIONS = {
     'workers': 3,
 }
 
+
 LOGGING = {
     'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+    },
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'django.utils.log.NullHandler',
+        },
+        'console':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['mail_admins'],
+            'propagate': True,
+            'level': 'INFO',
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ["null"],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.security.*': {
+            'handlers': ["mail_admins"],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'salmon.*': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+
+    }
 }
 
 #==============================================================================

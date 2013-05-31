@@ -6,7 +6,7 @@ salmon
 
 A multi-server monitoring system built on top of `Salt <http://www.saltstack.org>`_ using Django.
 
-It can serve both as an alerting system like `monit <http://mmonit.com/monit/>`_ (once `issue #2 <https://github.com/lincolnloop/salmon/issues/2>`_ is resoved) and a monitoring system like `munin <http://munin-monitoring.org/>`_ (using `Graphite's whisper database <http://graphite.readthedocs.org/en/latest/whisper.html>`_).
+It can serve both as an alerting system like `monit <http://mmonit.com/monit/>`_  and a monitoring system like `munin <http://munin-monitoring.org/>`_ (using `Graphite's whisper database <http://graphite.readthedocs.org/en/latest/whisper.html>`_).
 
 It aims to be simpler, easier to setup, and more efficient than its predecessors by taking advantage of Salt for data gathering and transport.
 

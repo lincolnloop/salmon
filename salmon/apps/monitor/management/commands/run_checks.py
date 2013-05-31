@@ -16,7 +16,10 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--fake', action='store_true', dest='fake', default=False,
                     help='Do not run the checks '
-                         'but print the Salt command instead'),)
+                         'but print the Salt command instead'),
+        make_option('--no-alert', action='store_true', dest='no_alert',
+                    default=False,
+                    help='Alert via email when a check fails'),)
 
     def load_salmon_checks(self):
         """Reads in checks.yaml and returns Python object"""
@@ -24,6 +27,7 @@ class Command(BaseCommand):
         return yaml.safe_load(checks_yaml)
 
     def handle(self, *args, **options):
+        self.options = options
         config = self.load_salmon_checks()
         if options['fake']:
             self.stdout.write("Printing checks [fake mode] ...")
@@ -43,6 +47,11 @@ class Command(BaseCommand):
                     self._run_cmd(target, func_name, func_opts, cmd)
         if not options['fake']:
             self.cleanup()
+        if not options['no_alert'] and self.active_checks:
+            self.stdout.write("Alerting via email")
+            for check in models.Check.objects.filter(
+                    id__in=self.active_checks):
+                check.send_alert_email()
 
     def cleanup(self):
         """
@@ -67,7 +76,8 @@ class Command(BaseCommand):
         """
         check, _ = models.Check.objects.get_or_create(
             target=target, function=func_name,
-            name=func_opts.get('name', func_name))
+            name=func_opts.get('name', func_name),
+            alert_emails=",".join(func_opts.get('alert_emails', [])))
         self.stdout.write("+ {}".format(cmd))
         timestamp = timezone.now()
         # shell out to salt command
@@ -86,6 +96,10 @@ class Command(BaseCommand):
 
         # parse out minion names in the event of a wildcard target
         for name, raw_value in parsed.iteritems():
+            if int(self.options["verbosity"]) > 1:
+                self.stdout.write(
+                    "+     name: {} -- str(raw_value): {}".format(
+                        name, str(raw_value)))
             value = utils.parse_value(raw_value, func_opts)
             self.stdout.write("   {}: {}".format(name, value))
             minion, _ = models.Minion.objects.get_or_create(name=name)

@@ -1,3 +1,4 @@
 salmon.yaml
 dist/
 *,cover
+salmon/settings/secrets.py
