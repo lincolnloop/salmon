@@ -41,10 +41,12 @@ class Check(models.Model):
 
         last_failing_results = (self.result_set.filter(failed=True,
                                                         notified=False)
-                                                .order_by("-timestamp"))
-        if last_successful_result:
-            last_failing_results = last_failing_results.filter(
-                timestamp__gt=last_successful_result.timestamp)
+                                                .order_by("-timestamp")
+                                                [:10])
+        #TODO: find a better way to restrict the last failling results
+#        if last_successful_result:
+#            last_failing_results = last_failing_results.filter(
+#                timestamp__gt=last_successful_result.timestamp)
 
         if last_failing_results and to_emails:
             msg = render_to_string(
