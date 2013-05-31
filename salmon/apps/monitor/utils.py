@@ -1,27 +1,41 @@
 from django.conf import settings
+from django.db import connection
 
 
-def get_latest_results(minion=None):
+def get_latest_results(minion=None, check_ids=None):
     """
-    For each (or all) minions,
+    For each (or all) minions and for the given check_ids
     get the newest result for every active check
     """
     from . import models
-    active_checks = (models.Check.objects.filter(active=True)
+    cursor = connection.cursor()
+    if not check_ids:
+        check_ids = (models.Check.objects.filter(active=True)
                                          .values_list('pk', flat=True))
 
-    if active_checks:
-        if len(active_checks) == 1:
-            having = "check_id = {}".format(active_checks[0])
+
+    if check_ids:
+        if len(check_ids) == 1:
+            having = "check_id = {}".format(check_ids[0])
         else:
-            having = "check_id IN {}".format(tuple(active_checks))
+            having = "check_id IN {}".format(tuple(check_ids))
         if minion:
             having += " AND minion_id={}".format(minion.pk)
-        latest_results = models.Result.objects.raw("""
-            SELECT id, check_id, MAX("timestamp")
+        # we need a first query to get the latest batch of results
+        latest_timestamps = cursor.execute("""
+            SELECT minion_id, check_id, MAX("timestamp")
             FROM "monitor_result"
             GROUP BY "monitor_result"."minion_id", "monitor_result"."check_id"
             HAVING {};""".format(having))
+    if latest_timestamps:
+        # transform the result to group them by minion_id, check_id, timestamp
+        # the new form of latest_timestamps can easily be consumed by Result
+        # ORM
+        latest_timestamps = zip(*latest_timestamps.fetchall())
+        latest_results = models.Result.objects.filter(
+            minion_id__in=latest_timestamps[0],
+            check_id__in=latest_timestamps[1],
+            timestamp__in=latest_timestamps[2])
     else:
         latest_results = []
     return latest_results

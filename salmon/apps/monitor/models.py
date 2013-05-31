@@ -20,7 +20,7 @@ class Check(models.Model):
     function = models.CharField(max_length=255)
     name = models.CharField(max_length=255, blank=True)
     alert_emails = models.CharField(max_length=255, blank=True,
-        help_text="Comma separated list of emails")
+                                    help_text="Comma separated list of emails")
     active = models.BooleanField(default=True)
 
     def __unicode__(self):
@@ -32,34 +32,38 @@ class Check(models.Model):
         subject = render_to_string(
             "monitor/emails/subject_alert_email.txt",
             {"check": self})
-        try:
-            last_successful_result = (self.result_set.filter(failed=False)
-                                                     .order_by("-timestamp")
-                                                     [0])
-        except IndexError as err:
-            last_successful_result = None
+        latest_results = utils.get_latest_results(
+            minion=None, active_check_ids=[self.id])
 
-        last_failing_results = (self.result_set.filter(failed=True,
-                                                        notified=False)
-                                                .order_by("-timestamp")
-                                                [:10])
-        if last_successful_result:
-            last_failing_results = last_failing_results.filter(
-                timestamp__gt=last_successful_result.timestamp)
+        failures = {}
+        last_failing_result_ids = []
+        for result in latest_results:
+            if result.failed:
+                last_failing_result_ids.append(result.id)
+                try:
+                    last_successful = Result.objects.filter(
+                        minion=result.minion,
+                        check=self.pk,
+                        failed=False).order_by("-timestamp")[0]
+                except IndexError:
+                    last_successful = None
+                failures[result.minion] = {
+                    "last_failed": result,
+                    "last_successful": last_successful}
 
-        if last_failing_results and to_emails:
+        if failures and to_emails:
             msg = render_to_string(
                 "monitor/emails/message_alert_email.txt",
                 {
                     "check": self,
-                    "last_failing_results": last_failing_results,
-                    "last_successful_result": last_successful_result,
+                    "failures": failures
                 })
 
             try:
                 # TODO: Understand where the \n is coming from
                 send_mail(subject.strip("\n"), msg, from_email, to_emails)
-                last_failing_results.update(notified=True)
+                (Result.objects.filter(id__in=last_failing_result_ids)
+                               .update(notified=True))
             except Exception as err:
                 logger.exception("An error occured while sending alert emails")
 
