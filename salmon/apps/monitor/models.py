@@ -33,7 +33,7 @@ class Check(models.Model):
             "monitor/emails/subject_alert_email.txt",
             {"check": self})
         latest_results = utils.get_latest_results(
-            minion=None, active_check_ids=[self.id])
+            minion=None, check_ids=[self.id])
 
         failures = {}
         last_failing_result_ids = []
