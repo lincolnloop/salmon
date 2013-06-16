@@ -59,7 +59,7 @@ class Command(BaseCommand):
         """
         inactived_checks = models.Check.objects.exclude(active=False).exclude(
             pk__in=self.active_checks)
-        self.stdout.write("{} checks deactivated".format(
+        self.stdout.write("{0} checks deactivated".format(
             inactived_checks.count()))
         inactived_checks.update(active=False)
 
@@ -78,7 +78,7 @@ class Command(BaseCommand):
             target=target, function=func_name,
             name=func_opts.get('name', func_name),
             alert_emails=",".join(func_opts.get('alert_emails', [])))
-        self.stdout.write("+ {}".format(cmd))
+        self.stdout.write("+ {0}".format(cmd))
         timestamp = timezone.now()
         # shell out to salt command
         result = subprocess.check_output(cmd, shell=True)
@@ -98,13 +98,13 @@ class Command(BaseCommand):
         for name, raw_value in parsed.iteritems():
             if int(self.options["verbosity"]) > 1:
                 self.stdout.write(
-                    "+     name: {} -- str(raw_value): {}".format(
+                    "+     name: {0} -- str(raw_value): {1}".format(
                         name, str(raw_value)))
             value = utils.parse_value(raw_value, func_opts)
-            self.stdout.write("   {}: {}".format(name, value))
+            self.stdout.write("   {0}: {1}".format(name, value))
             minion, _ = models.Minion.objects.get_or_create(name=name)
             failed = utils.check_failed(value, func_opts)
-            self.stdout.write("   {}: {}".format("Assertion has failed",
+            self.stdout.write("   {0}: {1}".format("Assertion has failed",
                                                  failed))
             models.Result.objects.create(timestamp=timestamp,
                                          result=value,

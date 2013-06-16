@@ -16,17 +16,17 @@ def get_latest_results(minion=None, check_ids=None):
 
     if check_ids:
         if len(check_ids) == 1:
-            having = "check_id = {}".format(check_ids[0])
+            having = "check_id = {0}".format(check_ids[0])
         else:
-            having = "check_id IN {}".format(tuple(check_ids))
+            having = "check_id IN {0}".format(tuple(check_ids))
         if minion:
-            having += " AND minion_id={}".format(minion.pk)
+            having += " AND minion_id={0}".format(minion.pk)
         # we need a first query to get the latest batch of results
         latest_timestamps = cursor.execute("""
             SELECT minion_id, check_id, MAX("timestamp")
             FROM "monitor_result"
             GROUP BY "monitor_result"."minion_id", "monitor_result"."check_id"
-            HAVING {};""".format(having))
+            HAVING {0};""".format(having))
     if latest_timestamps:
         # transform the result to group them by minion_id, check_id, timestamp
         # the new form of latest_timestamps can easily be consumed by Result
@@ -79,7 +79,7 @@ class TypeTranslate(object):
         self.cast_to = cast_to
 
     def cast(self, value):
-        return getattr(self, 'to_{}'.format(self.cast_to))(value)
+        return getattr(self, 'to_{0}'.format(self.cast_to))(value)
 
     def to_boolean(self, value):
         return bool(value) == True
