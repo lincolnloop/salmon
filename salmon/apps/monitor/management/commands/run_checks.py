@@ -81,7 +81,8 @@ class Command(BaseCommand):
         self.stdout.write("+ {0}".format(cmd))
         timestamp = timezone.now()
         # shell out to salt command
-        result = subprocess.check_output(cmd, shell=True)
+        result = subprocess.Popen(cmd, shell=True,
+            stdout=subprocess.PIPE).communicate()[0]
 
         if not check.active:
             check.active = True
