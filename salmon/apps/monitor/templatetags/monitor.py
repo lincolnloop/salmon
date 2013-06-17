@@ -11,5 +11,5 @@ def display_result(result):
         template = 'boolean_field.html'
     else:
         template = 'default_field.html'
-    template = 'monitor/includes/{}'.format(template)
+    template = 'monitor/includes/{0}'.format(template)
     return {'field_template': template, 'result': result}
