@@ -24,7 +24,7 @@ class Check(models.Model):
     active = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return '{} {} ({})'.format(self.target, self.function, self.name)
+        return '{0} {1} ({2})'.format(self.target, self.function, self.name)
 
     def send_alert_email(self):
         from_email = settings.DEFAULT_FROM_EMAIL
@@ -108,7 +108,7 @@ class Result(models.Model):
     @property
     def whisper_filename(self):
         """Build a file path to the Whisper database"""
-        return get_valid_filename("{}__{}.wsp".format(
+        return get_valid_filename("{0}__{1}.wsp".format(
             self.minion.name, self.check.name))
 
     def get_or_create_whisper(self):
