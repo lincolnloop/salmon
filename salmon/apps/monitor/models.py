@@ -2,6 +2,7 @@ import logging
 
 from django.db import models
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
@@ -52,11 +53,13 @@ class Check(models.Model):
                     "last_successful": last_successful}
 
         if failures and to_emails:
+
             msg = render_to_string(
                 "monitor/emails/message_alert_email.txt",
                 {
                     "check": self,
-                    "failures": failures
+                    "failures": failures,
+                    "site": Site.objects.get_current(),
                 })
 
             try:
