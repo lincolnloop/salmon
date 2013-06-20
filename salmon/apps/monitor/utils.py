@@ -26,7 +26,7 @@ def get_latest_results(minion=None, check_ids=None):
             SELECT minion_id, check_id, MAX("timestamp")
             FROM "monitor_result"
             GROUP BY "monitor_result"."minion_id", "monitor_result"."check_id"
-            HAVING {};""".format(having))
+            HAVING {0};""".format(having))
 
         data = latest_timestamps.fetchall()
         if data:
