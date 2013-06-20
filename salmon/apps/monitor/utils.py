@@ -27,15 +27,17 @@ def get_latest_results(minion=None, check_ids=None):
             FROM "monitor_result"
             GROUP BY "monitor_result"."minion_id", "monitor_result"."check_id"
             HAVING {};""".format(having))
-    if latest_timestamps:
-        # transform the result to group them by minion_id, check_id, timestamp
-        # the new form of latest_timestamps can easily be consumed by Result
-        # ORM
-        latest_timestamps = zip(*latest_timestamps.fetchall())
-        latest_results = models.Result.objects.filter(
-            minion_id__in=latest_timestamps[0],
-            check_id__in=latest_timestamps[1],
-            timestamp__in=latest_timestamps[2])
+
+        data = latest_timestamps.fetchall()
+        if data:
+            # transform the result to group them by minion_id, check_id, timestamp
+            # the new form of latest_timestamps can easily be consumed by Result
+            # ORM
+            latest_timestamps = zip(*data)
+            latest_results = models.Result.objects.filter(
+                minion_id__in=latest_timestamps[0],
+                check_id__in=latest_timestamps[1],
+                timestamp__in=latest_timestamps[2])
     else:
         latest_results = []
     return latest_results
