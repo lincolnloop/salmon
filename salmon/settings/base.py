@@ -134,7 +134,7 @@ AUTHENTICATION_BACKENDS += (
 # Miscellaneous project settings
 #==============================================================================
 
-SALMON_DOMAIN = "salmon.example.com"
+SALMON_URL = "http://salmon.example.com"
 
 # Tip: Execute run_checks via ssh by using:
 # SALT_COMMAND = 'ssh example.com "sudo su - salmon  -s /bin/bash -c \'salt {args} \'\"'

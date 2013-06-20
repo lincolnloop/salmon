@@ -3,6 +3,6 @@ We encounter an issue while performing {{ check }}.
 Here it is the list of failures:
 
 {% for minion, value in failures.items %}
-  * [ {{ value.last_failed.timestamp }} ] {{ minion }} ( http://{{ site }}{{ minion.get_absolute_url }} ) -- {{ value.last_failed.result }} {% if value.last_successful %}last know successful result {{value.last_successful.result }}{% else %}this check has never been successful.{% endif %}
+  * [ {{ value.last_failed.timestamp }} ] {{ minion }} ( {{ site_url }}{{ minion.get_absolute_url }} ) -- {{ value.last_failed.result }} {% if value.last_successful %}last know successful result {{value.last_successful.result }}{% else %}this check has never been successful.{% endif %}
 {% endfor %}
 

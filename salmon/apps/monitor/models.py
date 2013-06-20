@@ -58,7 +58,7 @@ class Check(models.Model):
                 {
                     "check": self,
                     "failures": failures,
-                    "site": settings.SALMON_DOMAIN
+                    "site_url": settings.SALMON_URL,
                 })
 
             try:

@@ -1,10 +1,11 @@
 import os
 SECRET_KEY = "{default_key}"
 
-SALMON_DOMAIN = "salmon.example.com"
+SALMON_URL = "{site_url}"
 
 # https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-# ALLOWED_HOSTS = [SALMON_DOMAIN]
+# from urlparse import urlparse
+# ALLOWED_HOSTS = [urlparse(SALMON_URL).hostname]
 
 # work-around for https://github.com/saltstack/salt/issues/4454
 SALT_COMMAND = '/usr/bin/python /usr/bin/salt {{args}}'
