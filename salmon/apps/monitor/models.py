@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 class Check(models.Model):
     """A description for a Salt call"""
+    NO_EMAIL_FLAG = "No Email"
     target = models.CharField(max_length=255)
     function = models.CharField(max_length=255)
     name = models.CharField(max_length=255, blank=True)
@@ -74,6 +75,8 @@ class Check(models.Model):
         This method return a list of email address that should be notified
         for this check
         """
+        if self.alert_emails == self.NO_EMAIL_FLAG:
+            return None
         if self.alert_emails:
             return self.alert_emails.split(",")
         return settings.ALERT_EMAILS
