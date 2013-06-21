@@ -84,6 +84,9 @@ class TypeTranslate(object):
         return getattr(self, 'to_{0}'.format(self.cast_to))(value)
 
     def to_boolean(self, value):
+        # bool('False') == True
+        if value == "False":
+            return False
         return bool(value) == True
 
     def to_percentage(self, value):

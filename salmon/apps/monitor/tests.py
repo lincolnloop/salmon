@@ -13,7 +13,7 @@ from django.test import TestCase
 
 from .graph import WhisperDatabase
 from .models import Minion, Check, Result
-from .utils import get_latest_results, build_command
+from .utils import get_latest_results, build_command, TypeTranslate
 
 POINT_NUMBERS = 50
 INTERVAL_MIN = 5
@@ -200,3 +200,10 @@ class MonitorUtilsBuildCommmand(TestCase):
         cmd = build_command(self.target,
                             self.function)
         self.assertEqual(cmd, expected_cmd)
+
+
+class TypeTranslateTest(TestCase):
+
+    def test_boolean_false_result(self):
+        self.assertEqual(TypeTranslate("boolean").cast("False"),
+                         False)
