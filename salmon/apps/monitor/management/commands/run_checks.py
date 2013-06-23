@@ -74,15 +74,22 @@ class Command(BaseCommand):
         """
         Runs salt checks and stores results to database.
         """
+        alert_emails = func_opts.get('alert_emails', [])
+
+        if alert_emails in [False, None]:
+            alert_emails = models.Check.NO_EMAIL_FLAG
+        else:
+            alert_emails = ",".join(alert_emails)
+
         check, _ = models.Check.objects.get_or_create(
             target=target, function=func_name,
             name=func_opts.get('name', func_name),
-            alert_emails=",".join(func_opts.get('alert_emails', [])))
+            alert_emails=alert_emails)
         self.stdout.write("+ {0}".format(cmd))
         timestamp = timezone.now()
         # shell out to salt command
         result = subprocess.Popen(cmd, shell=True,
-            stdout=subprocess.PIPE).communicate()[0]
+                                  stdout=subprocess.PIPE).communicate()[0]
 
         if not check.active:
             check.active = True
@@ -106,7 +113,7 @@ class Command(BaseCommand):
             minion, _ = models.Minion.objects.get_or_create(name=name)
             failed = utils.check_failed(value, func_opts)
             self.stdout.write("   {0}: {1}".format("Assertion has failed",
-                                                 failed))
+                                                   failed))
             models.Result.objects.create(timestamp=timestamp,
                                          result=value,
                                          result_type=func_opts['type'],
