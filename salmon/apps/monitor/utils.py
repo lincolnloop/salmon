@@ -1,5 +1,12 @@
+import json
+import logging
+import subprocess
+
 from django.conf import settings
 from django.db import connection
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_latest_results(minion=None, check_ids=None):
@@ -42,16 +49,34 @@ def get_latest_results(minion=None, check_ids=None):
     return latest_results
 
 
-def build_command(target, function, output='json'):
-    # FIXME: this is a bad way to build up the command
-    if settings.SALT_COMMAND.startswith('ssh'):
-        quote = '\\\"'
-    else:
-        quote = '"'
-    args = '--static --out={output} {quote}{target}{quote} {function}'.format(
-        output=output, quote=quote, target=target, function=function)
-    cmd = settings.SALT_COMMAND.format(args=args)
-    return cmd
+class SaltProxy(object):
+
+    def __init__(self, target, function, output="json"):
+        self.target = target
+        self.function = function
+        self.output = output
+        self.cmd = self._build_command(output=output)
+
+    def _build_command(self, output='json'):
+        # FIXME: this is a bad way to build up the command
+        if settings.SALT_COMMAND.startswith('ssh'):
+            quote = '\\\"'
+        else:
+            quote = '"'
+        args = '--static --out={output} {quote}{target}{quote} {function}'.format(
+            output=self.output, quote=quote,
+            target=self.target, function=self.function)
+        cmd = settings.SALT_COMMAND.format(args=args)
+        return cmd
+
+    def run(self):
+        try:
+            result = subprocess.Popen(self._build_command(),
+                                      shell=True,
+                                      stdout=subprocess.PIPE).communicate()[0]
+            return json.loads(result)
+        except ValueError as err:
+            logging.exception("Error parsing results.")
 
 
 def parse_value(raw_value, opts):

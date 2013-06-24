@@ -13,7 +13,8 @@ from django.test import TestCase
 
 from salmon.apps.monitor.graph import WhisperDatabase
 from salmon.apps.monitor.models import Minion, Check, Result
-from salmon.apps.monitor.utils import (get_latest_results, build_command,
+from salmon.apps.monitor.utils import (get_latest_results,
+                                       SaltProxy,
                                        Checker)
 
 POINT_NUMBERS = 50
@@ -186,20 +187,21 @@ class MonitorUtilsBuildCommmand(TestCase):
 
     @override_settings(SALT_COMMAND='ssh example.com "sudo su - salmon  -s ' +
                                     '/bin/bash -c \'salt {args} \'\"')
-    def test_build_command_ssh(self):
+    def test_salt_proxy_cmd_ssh(self):
         expected_cmd = ('ssh example.com "sudo su - salmon  -s /bin/bash -c ' +
                         '\'salt --static --out=json \\"*\\" ' +
                         'disk.usage \'"')
-        cmd = build_command(self.target,
-                            self.function)
+
+        cmd = (SaltProxy(self.target,
+                         self.function).cmd)
         self.assertEqual(cmd, expected_cmd)
 
     @override_settings(SALT_COMMAND='/usr/bin/python /usr/bin/salt {args}')
-    def test_build_command(self):
+    def test_salt_proxy_cmd_local(self):
         expected_cmd = ('/usr/bin/python /usr/bin/salt --static ' +
                         '--out=json "*" disk.usage')
-        cmd = build_command(self.target,
-                            self.function)
+        cmd = (SaltProxy(self.target,
+                         self.function).cmd)
         self.assertEqual(cmd, expected_cmd)
 
 

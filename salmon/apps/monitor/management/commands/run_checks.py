@@ -1,6 +1,4 @@
 import datetime
-import json
-import subprocess
 from optparse import make_option
 import yaml
 
@@ -37,14 +35,11 @@ class Command(BaseCommand):
         self.active_checks = []
         for target, functions in config.items():
             for func_name, func_opts in functions.items():
-                cmd = utils.build_command(target, func_name)
-                if options['fake']:
-                    self.stdout.write("target: %s -- cmd: %s" % (target, cmd))
-                    self.stdout.write("    func_name: %s" % func_name)
-                    self.stdout.write("    func_opts: %s" % func_opts)
-
-                else:
-                    self._run_cmd(target, func_name, func_opts, cmd)
+                salt_proxy = utils.SaltProxy(target, func_name)
+                self.stdout.write("salt command: %s" % salt_proxy.cmd)
+                if not options['fake']:
+                    result = salt_proxy.run()
+                    self._handle_result(target, func_name, func_opts, result)
         if not options['fake']:
             self.cleanup()
         if not options['no_alert'] and self.active_checks:
@@ -70,10 +65,11 @@ class Command(BaseCommand):
         models.Result.objects.filter(timestamp__lt=expiration_date).delete()
         self.stdout.write("Done!")
 
-    def _run_cmd(self, target, func_name, func_opts, cmd):
+    def _handle_result(self, target, func_name, func_opts, result):
         """
-        Runs salt checks and stores results to database.
+        handle salt check result and stores results to database.
         """
+        # TODO: Move this elsewhere were it is more easily testable.
         alert_emails = func_opts.get('alert_emails', [])
 
         if alert_emails in [False, None]:
@@ -85,25 +81,15 @@ class Command(BaseCommand):
             target=target, function=func_name,
             name=func_opts.get('name', func_name),
             alert_emails=alert_emails)
-        self.stdout.write("+ {0}".format(cmd))
         timestamp = timezone.now()
-        # shell out to salt command
-        result = subprocess.Popen(cmd, shell=True,
-                                  stdout=subprocess.PIPE).communicate()[0]
 
         if not check.active:
             check.active = True
             check.save()
         self.active_checks.append(check.pk)
 
-        try:
-            parsed = json.loads(result)
-        except ValueError as err:
-            self.stdout.write("  Error parsing results: %s" % err)
-            return
-
         # parse out minion names in the event of a wildcard target
-        for name, raw_value in parsed.iteritems():
+        for name, raw_value in result.iteritems():
             if int(self.options["verbosity"]) > 1:
                 self.stdout.write(
                     "+     name: {0} -- str(raw_value): {1}".format(
