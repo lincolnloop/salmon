@@ -13,7 +13,6 @@ def get_latest_results(minion=None, check_ids=None):
         check_ids = (models.Check.objects.filter(active=True)
                                          .values_list('pk', flat=True))
 
-
     if check_ids:
         if len(check_ids) == 1:
             having = "check_id = {0}".format(check_ids[0])
@@ -30,9 +29,9 @@ def get_latest_results(minion=None, check_ids=None):
 
         data = latest_timestamps.fetchall()
         if data:
-            # transform the result to group them by minion_id, check_id, timestamp
-            # the new form of latest_timestamps can easily be consumed by Result
-            # ORM
+            # transform the result to group them by minion_id, check_id,
+            # timestamp # the new form of latest_timestamps can easily be
+            # consumed by Result ORM
             latest_timestamps = zip(*data)
             latest_results = models.Result.objects.filter(
                 minion_id__in=latest_timestamps[0],
@@ -55,15 +54,6 @@ def build_command(target, function, output='json'):
     return cmd
 
 
-def check_failed(value, opts):
-    if isinstance(value, basestring):
-        value = TypeTranslate(opts['type']).cast(value)
-    success = eval(opts['assert'].format(value=value))
-    assert isinstance(success, bool)
-    # this is check_failed, not check_success
-    return not success
-
-
 def parse_value(raw_value, opts):
     value = raw_value
     if 'key' in opts:
@@ -71,23 +61,39 @@ def parse_value(raw_value, opts):
         for key in key_tree:
             value = value[key]
     # Handle the special case where the value is None
-    elif value == None:
+    elif value is None:
         value = ""
     return value
 
 
-class TypeTranslate(object):
-    def __init__(self, cast_to):
-        self.cast_to = cast_to
+def check_failed(value, opts):
+    checker = Checker(cast_to=opts['type'], raw_value=value)
+    return not checker.do_assert(opts['assert'])
 
-    def cast(self, value):
-        return getattr(self, 'to_{0}'.format(self.cast_to))(value)
+
+class Checker(object):
+    def __init__(self, cast_to, raw_value):
+        self.cast_to = cast_to
+        self.raw_value = raw_value
+        self.value = self.cast()
+
+    def cast(self):
+        if not hasattr(self, "value"):
+            self.value = getattr(
+                self, 'to_{0}'.format(self.cast_to))(self.raw_value)
+        return self.value
+
+    def do_assert(self, assertion_string):
+        # TODO: try to remove the evil
+        success = eval(assertion_string.format(value=self.value))
+        assert isinstance(success, bool)
+        return success
 
     def to_boolean(self, value):
         # bool('False') == True
         if value == "False":
             return False
-        return bool(value) == True
+        return bool(value) is True
 
     def to_percentage(self, value):
         return self.to_float(value)
@@ -97,3 +103,6 @@ class TypeTranslate(object):
 
     def to_float(self, value):
         return float(value)
+
+    def to_string(self, value):
+        return str(value)

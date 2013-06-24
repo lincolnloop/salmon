@@ -11,9 +11,10 @@ from django.conf import settings
 from django.test import TestCase
 
 
-from .graph import WhisperDatabase
-from .models import Minion, Check, Result
-from .utils import get_latest_results, build_command, TypeTranslate
+from salmon.apps.monitor.graph import WhisperDatabase
+from salmon.apps.monitor.models import Minion, Check, Result
+from salmon.apps.monitor.utils import (get_latest_results, build_command,
+                                       Checker)
 
 POINT_NUMBERS = 50
 INTERVAL_MIN = 5
@@ -202,8 +203,25 @@ class MonitorUtilsBuildCommmand(TestCase):
         self.assertEqual(cmd, expected_cmd)
 
 
-class TypeTranslateTest(TestCase):
+class CheckerTest(TestCase):
 
     def test_boolean_false_result(self):
-        self.assertEqual(TypeTranslate("boolean").cast("False"),
-                         False)
+        cast_to = "boolean"
+        raw_value = "False"
+        assertion_string = "{value} == True"
+        checker = Checker(cast_to=cast_to, raw_value=raw_value)
+        self.assertEqual(checker.do_assert(assertion_string), False)
+
+    def test_boolean_true_result(self):
+        cast_to = "boolean"
+        raw_value = "False"
+        assertion_string = "{value} == False"
+        checker = Checker(cast_to=cast_to, raw_value=raw_value)
+        self.assertEqual(checker.do_assert(assertion_string), True)
+
+    def test_string_true_result(self):
+        cast_to = "string"
+        raw_value = "HTTP/1.1 200 OK"
+        assertion_string = "'{value}' == 'HTTP/1.1 200 OK'"
+        checker = Checker(cast_to=cast_to, raw_value=raw_value)
+        self.assertEqual(checker.do_assert(assertion_string), True)
