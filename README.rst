@@ -41,11 +41,10 @@ For security reasons, you shouldn't run this as ``root`` on your server. Instead
 
     client_acl:
       youruser:
-        - '*':
-          - test.ping
-          - service.status
-          - disk.usage
-          - 'ps.*'
-          - file.check_hash
+        - test.ping
+        - service.status
+        - disk.usage
+        - 'ps.*'
+        - file.check_hash
 
 Be sure to restart the ``salt-master`` for configuration changes to take effect. For more details, read the docs on Salt's `client_acl <http://docs.saltstack.com/ref/configuration/master.html#std:conf_master-client_acl>`_.
