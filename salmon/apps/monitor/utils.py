@@ -1,5 +1,12 @@
+import json
+import logging
+import subprocess
+
 from django.conf import settings
 from django.db import connection
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_latest_results(minion=None, check_ids=None):
@@ -12,7 +19,6 @@ def get_latest_results(minion=None, check_ids=None):
     if not check_ids:
         check_ids = (models.Check.objects.filter(active=True)
                                          .values_list('pk', flat=True))
-
 
     if check_ids:
         if len(check_ids) == 1:
@@ -30,9 +36,9 @@ def get_latest_results(minion=None, check_ids=None):
 
         data = latest_timestamps.fetchall()
         if data:
-            # transform the result to group them by minion_id, check_id, timestamp
-            # the new form of latest_timestamps can easily be consumed by Result
-            # ORM
+            # transform the result to group them by minion_id, check_id,
+            # timestamp # the new form of latest_timestamps can easily be
+            # consumed by Result ORM
             latest_timestamps = zip(*data)
             latest_results = models.Result.objects.filter(
                 minion_id__in=latest_timestamps[0],
@@ -43,25 +49,34 @@ def get_latest_results(minion=None, check_ids=None):
     return latest_results
 
 
-def build_command(target, function, output='json'):
-    # FIXME: this is a bad way to build up the command
-    if settings.SALT_COMMAND.startswith('ssh'):
-        quote = '\\\"'
-    else:
-        quote = '"'
-    args = '--static --out={output} {quote}{target}{quote} {function}'.format(
-        output=output, quote=quote, target=target, function=function)
-    cmd = settings.SALT_COMMAND.format(args=args)
-    return cmd
+class SaltProxy(object):
 
+    def __init__(self, target, function, output="json"):
+        self.target = target
+        self.function = function
+        self.output = output
+        self.cmd = self._build_command(output=output)
 
-def check_failed(value, opts):
-    if isinstance(value, basestring):
-        value = TypeTranslate(opts['type']).cast(value)
-    success = eval(opts['assert'].format(value=value))
-    assert isinstance(success, bool)
-    # this is check_failed, not check_success
-    return not success
+    def _build_command(self, output='json'):
+        # FIXME: this is a bad way to build up the command
+        if settings.SALT_COMMAND.startswith('ssh'):
+            quote = '\\\"'
+        else:
+            quote = '"'
+        args = '--static --out={output} {quote}{target}{quote} {function}'.format(
+            output=self.output, quote=quote,
+            target=self.target, function=self.function)
+        cmd = settings.SALT_COMMAND.format(args=args)
+        return cmd
+
+    def run(self):
+        try:
+            result = subprocess.Popen(self._build_command(),
+                                      shell=True,
+                                      stdout=subprocess.PIPE).communicate()[0]
+            return json.loads(result)
+        except ValueError as err:
+            logging.exception("Error parsing results.")
 
 
 def parse_value(raw_value, opts):
@@ -71,23 +86,39 @@ def parse_value(raw_value, opts):
         for key in key_tree:
             value = value[key]
     # Handle the special case where the value is None
-    elif value == None:
+    elif value is None:
         value = ""
     return value
 
 
-class TypeTranslate(object):
-    def __init__(self, cast_to):
-        self.cast_to = cast_to
+def check_failed(value, opts):
+    checker = Checker(cast_to=opts['type'], raw_value=value)
+    return not checker.do_assert(opts['assert'])
 
-    def cast(self, value):
-        return getattr(self, 'to_{0}'.format(self.cast_to))(value)
+
+class Checker(object):
+    def __init__(self, cast_to, raw_value):
+        self.cast_to = cast_to
+        self.raw_value = raw_value
+        self.value = self.cast()
+
+    def cast(self):
+        if not hasattr(self, "value"):
+            self.value = getattr(
+                self, 'to_{0}'.format(self.cast_to))(self.raw_value)
+        return self.value
+
+    def do_assert(self, assertion_string):
+        # TODO: try to remove the evil
+        success = eval(assertion_string.format(value=self.value))
+        assert isinstance(success, bool)
+        return success
 
     def to_boolean(self, value):
         # bool('False') == True
         if value == "False":
             return False
-        return bool(value) == True
+        return bool(value) is True
 
     def to_percentage(self, value):
         return self.to_float(value)
@@ -97,3 +128,6 @@ class TypeTranslate(object):
 
     def to_float(self, value):
         return float(value)
+
+    def to_string(self, value):
+        return str(value)

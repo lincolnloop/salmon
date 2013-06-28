@@ -108,13 +108,27 @@ class Result(models.Model):
 
     @property
     def cleaned_result(self):
-        return utils.TypeTranslate(self.result_type).cast(self.result)
+        checker = utils.Checker(cast_to=self.result_type,
+                                raw_value=self.result)
+        return checker.value
 
     @property
     def whisper_filename(self):
         """Build a file path to the Whisper database"""
         return get_valid_filename("{0}__{1}.wsp".format(
             self.minion.name, self.check.name))
+
+    @property
+    def floatified_result(self):
+        cleaned_result = (utils.Checker(cast_to=self.result_type,
+                                        raw_value=self.result)
+                               .value)
+
+        if self.result_type == "percent":
+            return cleaned_result.replace("%", "")
+        if self.result_type == "string":
+            return float(not self.failed)
+        return float(cleaned_result)
 
     def get_or_create_whisper(self):
         """
@@ -131,9 +145,5 @@ class Result(models.Model):
         if not self.pk:
             # Store the value in the whisper database
             wsp = self.get_or_create_whisper()
-            if isinstance(self.result, basestring) or self.result_type:
-                value = self.cleaned_result
-            else:
-                value = self.result
-            wsp.update(self.timestamp, value)
+            wsp.update(self.timestamp, self.floatified_result)
         return super(Result, self).save(*args, **kwargs)

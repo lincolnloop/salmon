@@ -1,7 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 import whisper
-from random import randint
 
 from django.conf import settings
 
@@ -26,16 +25,7 @@ class WhisperDatabase(object):
                        xFilesFactor=settings.XFILEFACTOR,
                        aggregationMethod=settings.AGGREGATION_METHOD)
 
-    def _floatify(self, value):
-        """
-        This method try to convert a value to a float
-        """
-        if isinstance(value, str) or isinstance(value, unicode):
-            value = value.replace("%", "")
-        return float(value)
-
     def update(self, timestamp, value):
-        value = self._floatify(value)
         self._update([(timestamp.strftime("%s"), value)])
 
     def _update(self, datapoints):

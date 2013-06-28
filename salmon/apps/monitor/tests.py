@@ -11,9 +11,11 @@ from django.conf import settings
 from django.test import TestCase
 
 
-from .graph import WhisperDatabase
-from .models import Minion, Check, Result
-from .utils import get_latest_results, build_command, TypeTranslate
+from salmon.apps.monitor.graph import WhisperDatabase
+from salmon.apps.monitor.models import Minion, Check, Result
+from salmon.apps.monitor.utils import (get_latest_results,
+                                       SaltProxy,
+                                       Checker)
 
 POINT_NUMBERS = 50
 INTERVAL_MIN = 5
@@ -185,25 +187,43 @@ class MonitorUtilsBuildCommmand(TestCase):
 
     @override_settings(SALT_COMMAND='ssh example.com "sudo su - salmon  -s ' +
                                     '/bin/bash -c \'salt {args} \'\"')
-    def test_build_command_ssh(self):
+    def test_salt_proxy_cmd_ssh(self):
         expected_cmd = ('ssh example.com "sudo su - salmon  -s /bin/bash -c ' +
                         '\'salt --static --out=json \\"*\\" ' +
                         'disk.usage \'"')
-        cmd = build_command(self.target,
-                            self.function)
+
+        cmd = (SaltProxy(self.target,
+                         self.function).cmd)
         self.assertEqual(cmd, expected_cmd)
 
     @override_settings(SALT_COMMAND='/usr/bin/python /usr/bin/salt {args}')
-    def test_build_command(self):
+    def test_salt_proxy_cmd_local(self):
         expected_cmd = ('/usr/bin/python /usr/bin/salt --static ' +
                         '--out=json "*" disk.usage')
-        cmd = build_command(self.target,
-                            self.function)
+        cmd = (SaltProxy(self.target,
+                         self.function).cmd)
         self.assertEqual(cmd, expected_cmd)
 
 
-class TypeTranslateTest(TestCase):
+class CheckerTest(TestCase):
 
     def test_boolean_false_result(self):
-        self.assertEqual(TypeTranslate("boolean").cast("False"),
-                         False)
+        cast_to = "boolean"
+        raw_value = "False"
+        assertion_string = "{value} == True"
+        checker = Checker(cast_to=cast_to, raw_value=raw_value)
+        self.assertEqual(checker.do_assert(assertion_string), False)
+
+    def test_boolean_true_result(self):
+        cast_to = "boolean"
+        raw_value = "False"
+        assertion_string = "{value} == False"
+        checker = Checker(cast_to=cast_to, raw_value=raw_value)
+        self.assertEqual(checker.do_assert(assertion_string), True)
+
+    def test_string_true_result(self):
+        cast_to = "string"
+        raw_value = "HTTP/1.1 200 OK"
+        assertion_string = "'{value}' == 'HTTP/1.1 200 OK'"
+        checker = Checker(cast_to=cast_to, raw_value=raw_value)
+        self.assertEqual(checker.do_assert(assertion_string), True)

@@ -1,4 +1,4 @@
-from django.template import Template, Library
+from django.template import Library
 
 register = Library()
 
@@ -9,6 +9,8 @@ def display_result(result):
         template = 'percentage_field.html'
     elif result.result_type == 'boolean':
         template = 'boolean_field.html'
+    elif result.result_type == 'string':
+        template = 'string_field.html'
     else:
         template = 'default_field.html'
     template = 'monitor/includes/{0}'.format(template)
