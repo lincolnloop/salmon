@@ -11,11 +11,9 @@ from django.conf import settings
 from django.test import TestCase
 
 
-from salmon.apps.monitor.graph import WhisperDatabase
-from salmon.apps.monitor.models import Minion, Check, Result
-from salmon.apps.monitor.utils import (get_latest_results,
-                                       SaltProxy,
-                                       Checker)
+from .graph import WhisperDatabase
+from .models import Minion, Check, Result
+from . import utils
 
 POINT_NUMBERS = 50
 INTERVAL_MIN = 5
@@ -111,13 +109,13 @@ class MonitorUrlTest(BaseTestCase):
 
 class MonitorUtilsTest(BaseTestCase):
     def test_get_latest_results_for_all_minions(self):
-        latest_results = get_latest_results()
+        latest_results = utils.get_latest_results()
         self.assertEqual(
             [(r.minion.name, r.check.name) for r in latest_results],
             [(u'minion.local', u'Memory Usage')])
 
     def test_get_latest_results_a_minion(self):
-        latest_results = get_latest_results(minion=self.minion)
+        latest_results = utils.get_latest_results(minion=self.minion)
         self.assertEqual(
             [(r.minion.name, r.check.name) for r in latest_results],
             [(u'minion.local', u'Memory Usage')])
@@ -192,16 +190,14 @@ class MonitorUtilsBuildCommmand(TestCase):
                         '\'salt --static --out=json \\"*\\" ' +
                         'disk.usage \'"')
 
-        cmd = (SaltProxy(self.target,
-                         self.function).cmd)
+        cmd = utils.SaltProxy(self.target, self.function).cmd
         self.assertEqual(cmd, expected_cmd)
 
     @override_settings(SALT_COMMAND='/usr/bin/python /usr/bin/salt {args}')
     def test_salt_proxy_cmd_local(self):
         expected_cmd = ('/usr/bin/python /usr/bin/salt --static ' +
                         '--out=json "*" disk.usage')
-        cmd = (SaltProxy(self.target,
-                         self.function).cmd)
+        cmd = utils.SaltProxy(self.target, self.function).cmd
         self.assertEqual(cmd, expected_cmd)
 
 
@@ -211,19 +207,49 @@ class CheckerTest(TestCase):
         cast_to = "boolean"
         raw_value = "False"
         assertion_string = "{value} == True"
-        checker = Checker(cast_to=cast_to, raw_value=raw_value)
+        checker = utils.Checker(cast_to=cast_to, raw_value=raw_value)
         self.assertEqual(checker.do_assert(assertion_string), False)
 
     def test_boolean_true_result(self):
         cast_to = "boolean"
         raw_value = "False"
         assertion_string = "{value} == False"
-        checker = Checker(cast_to=cast_to, raw_value=raw_value)
+        checker = utils.Checker(cast_to=cast_to, raw_value=raw_value)
         self.assertEqual(checker.do_assert(assertion_string), True)
 
     def test_string_true_result(self):
         cast_to = "string"
         raw_value = "HTTP/1.1 200 OK"
         assertion_string = "'{value}' == 'HTTP/1.1 200 OK'"
-        checker = Checker(cast_to=cast_to, raw_value=raw_value)
+        checker = utils.Checker(cast_to=cast_to, raw_value=raw_value)
         self.assertEqual(checker.do_assert(assertion_string), True)
+
+
+class AssertCheckTest(TestCase):
+    def test_failure(self):
+        failed = utils.check_failed('False', {'type': 'boolean',
+                                              'assert': '{value} == True'})
+        self.assertTrue(failed)
+
+    def test_success(self):
+        failed = utils.check_failed('1.0', {'type': 'float',
+                                            'assert': '{value} < 5'})
+        self.assertFalse(failed)
+
+    def test_no_check(self):
+        no_check = utils.check_failed('1.0', {'type': 'float'})
+        self.assertEqual(no_check, None)
+
+
+class ParseValueTest(TestCase):
+    def test_with_key(self):
+        val = utils.parse_value({'e': 'east', 'w': 'west'}, {'key': 'w'})
+        self.assertEqual(val, 'west')
+
+    def test_no_key(self):
+        val = utils.parse_value('north', {})
+        self.assertEqual(val, 'north')
+
+    def test_none(self):
+        val = utils.parse_value(None, {})
+        self.assertEqual(val, "")

@@ -100,7 +100,7 @@ class Result(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     result = models.TextField()
     result_type = models.CharField(max_length=30)
-    failed = models.BooleanField(default=True)
+    failed = models.NullBooleanField(default=True)
     notified = models.BooleanField(default=False)
 
     def __unicode__(self):

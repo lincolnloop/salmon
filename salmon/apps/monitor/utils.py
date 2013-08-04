@@ -92,6 +92,8 @@ def parse_value(raw_value, opts):
 
 
 def check_failed(value, opts):
+    if 'assert' not in opts:
+        return None
     checker = Checker(cast_to=opts['type'], raw_value=value)
     return not checker.do_assert(opts['assert'])
 
@@ -119,6 +121,9 @@ class Checker(object):
         if value == "False":
             return False
         return bool(value) is True
+
+    def to_integer(self, value):
+        return self.to_float(value)
 
     def to_percentage(self, value):
         return self.to_float(value)
