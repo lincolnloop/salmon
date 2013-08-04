@@ -4,6 +4,7 @@ import subprocess
 
 from django.conf import settings
 from django.db import connection
+import yaml
 
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,11 @@ def get_latest_results(minion=None, check_ids=None):
     else:
         latest_results = []
     return latest_results
+
+def load_salmon_checks():
+    """Reads in checks.yaml and returns Python object"""
+    checks_yaml = open(settings.SALMON_CHECKS_PATH).read()
+    return yaml.safe_load(checks_yaml)
 
 
 class SaltProxy(object):

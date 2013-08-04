@@ -1,6 +1,5 @@
 import datetime
 from optparse import make_option
-import yaml
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -19,14 +18,9 @@ class Command(BaseCommand):
                     default=False,
                     help='Alert via email when a check fails'),)
 
-    def load_salmon_checks(self):
-        """Reads in checks.yaml and returns Python object"""
-        checks_yaml = open(settings.SALMON_CHECKS_PATH).read()
-        return yaml.safe_load(checks_yaml)
-
     def handle(self, *args, **options):
         self.options = options
-        config = self.load_salmon_checks()
+        config = utils.load_salmon_checks()
         if options['fake']:
             self.stdout.write("Printing checks [fake mode] ...")
         else:
