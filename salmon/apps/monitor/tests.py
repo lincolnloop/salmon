@@ -48,15 +48,20 @@ def generate_sample_data(point_numbers, interval):
     now = datetime.now()
     for i in range(point_numbers):
         for check in checks:
-            value = randint(1, 100)
+            value1 = randint(1, 100)
+            value2 = randint(1, 100)
             Result.objects.create(
                 check=check,
                 minion=minion,
                 timestamp=now-timedelta(minutes=interval*i),
-                values={'': {'raw': str(value),
-                             'float': float(value),
-                             'real': float(value),
-                             'type': 'float'}},
+                values={'/': {'raw': str(value1),
+                              'float': float(value1),
+                              'real': float(value1),
+                              'type': 'float'},
+                        '/var': {'raw': str(value2),
+                                 'float': float(value2),
+                                 'real': float(value2),
+                                 'type': 'float'}},
                 failed=False)
 
     return (minion, checks[0], checks[1])
@@ -97,8 +102,8 @@ class WhisperDatabaseTest(BaseTestCase):
                                            'type': 'integer'
                                        }},
                                        failed=False)
-        history = result.get_history(now-timedelta(minutes=INTERVAL_MIN*20))
-        self.assertEqual(len(history[key]), 20)
+        histories = result.get_histories(now-timedelta(minutes=INTERVAL_MIN*20))
+        self.assertEqual(len(histories[key]), 20)
 
 
 class MonitorUrlTest(BaseTestCase):

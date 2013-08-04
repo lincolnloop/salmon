@@ -52,8 +52,8 @@
                 $('.graph').each(function (idx, el) {
                     var $graph = $(el),
                         data = $graph.data('points'),
-                        type = $graph.data('type')
-                    $graph.plot([data], options[type] || options.base);
+                        type = $graph.data('type');
+                    $graph.plot(data, options[type] || options.base);
                 });
             }
             drawGraphs();

@@ -108,6 +108,10 @@ class Result(models.Model):
     def __unicode__(self):
         return self.timestamp.isoformat()
 
+    def values_type(self):
+        """Grab the type from the first item in the values"""
+        return self.values.values()[0]['type']
+
     def whisper_filename(self, key):
         """Build a file path to the Whisper database"""
         name_bits = [self.minion.name, self.check.name, key]
@@ -120,7 +124,7 @@ class Result(models.Model):
         """
         return graph.WhisperDatabase(self.whisper_filename(key))
 
-    def get_history(self, from_date, to_date=None):
+    def get_histories(self, from_date, to_date=None):
         """Loads in historical data from Whisper database"""
         histories = {}
         for key in self.values.keys():

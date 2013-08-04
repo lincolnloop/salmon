@@ -44,15 +44,21 @@ def history(request, name):
     graphs = []
 
     for result in utils.get_latest_results(minion=minion):
-        history = result.get_history(
+        histories = result.get_histories(
             from_date=from_date,
             to_date=to_date)
         # javascript uses milliseconds since epoch
-        js_data = map(lambda x: (x[0] * 1000, x[1]), history)
-        if result.result_type.startswith('percentage'):
+        js_data = []
+        for key, history in histories.items():
+            js_data.append({
+                'label': key,
+                'data': map(lambda x: (x[0] * 1000, x[1]), history),
+            })
+        values_type = result.values_type()
+        if values_type.startswith('percentage'):
             graph_type = 'percentage'
         else:
-            graph_type = result.result_type
+            graph_type = values_type
         graphs.append({
             'name': result.check.name,
             'data': json.dumps(js_data),
