@@ -101,7 +101,7 @@ def parse_values(raw_value, opts):
 
     if 'keys' in opts:
         results = []
-        for key in keys:
+        for key in opts['keys']:
             results.append(Value(
                 key=key, raw_value=_traverse_dict(raw_value),
                 cast_to=opts['type']))
