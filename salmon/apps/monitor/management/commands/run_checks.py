@@ -88,8 +88,8 @@ class Command(BaseCommand):
                 self.stdout.write(
                     "+     name: {0} -- str(raw_value): {1}".format(
                         name, str(raw_value)))
-            values = utils.parse_values(raw_value, func_opts)
-            self.stdout.write("   {0}: {1}".format(name, value))
+            values = utils.parse_value(raw_value, func_opts)
+            self.stdout.write("   {0}: {1}".format(name, values))
             minion, _ = models.Minion.objects.get_or_create(name=name)
             failed = utils.check_failed(values, func_opts)
             self.stdout.write("   Assertion: {1}".format(not failed))
