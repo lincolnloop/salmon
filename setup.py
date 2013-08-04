@@ -19,6 +19,7 @@ setup(
         'gunicorn>=0.17.2,<0.18.0',
         'whisper==0.9.10',
         'jsonfield==0.9.17',
+        'dj-static==0.0.5',
     ],
     entry_points={
         'console_scripts': [

@@ -93,6 +93,7 @@ STATICFILES_DIRS = (
 )
 
 ALLOWED_HOSTS = ['*']
+WSGI_APPLICATION = 'salmon.wsgi.application'
 
 #==============================================================================
 # Database
