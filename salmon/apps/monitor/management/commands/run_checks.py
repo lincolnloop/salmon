@@ -98,8 +98,7 @@ class Command(BaseCommand):
             self.stdout.write("   {0}: {1}".format(name, value))
             minion, _ = models.Minion.objects.get_or_create(name=name)
             failed = utils.check_failed(value, func_opts)
-            self.stdout.write("   {0}: {1}".format("Assertion has failed",
-                                                   failed))
+            self.stdout.write("   Assertion: {1}".format(not failed))
             models.Result.objects.create(timestamp=timestamp,
                                          result=value,
                                          result_type=func_opts['type'],
