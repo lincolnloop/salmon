@@ -96,7 +96,7 @@ def _traverse_dict(obj, key_string):
     return obj
 
 
-def parse_value(raw_value, opts):
+def parse_values(raw_value, opts):
     """Parses Salt return value to find the keys specified"""
 
     if 'keys' in opts:
@@ -112,7 +112,7 @@ def parse_value(raw_value, opts):
         raw_value = _traverse_dict(raw_value, opts['key'])
     else:
         key = ''
-    return Value(key=key, raw=raw_value, cast_to=opts['type'])
+    return [Value(key=key, raw=raw_value, cast_to=opts['type'])]
 
 
 def check_failed(values, opts):

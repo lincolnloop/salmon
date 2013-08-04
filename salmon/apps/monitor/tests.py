@@ -246,17 +246,17 @@ class AssertCheckTest(TestCase):
 
 class ParseValueTest(TestCase):
     def test_with_key(self):
-        val = utils.parse_value({'e': 'east', 'w': 'west'},
+        val = utils.parse_values({'e': 'east', 'w': 'west'},
                                 {'key': 'w', 'type': 'string'})
-        self.assertEqual(val.key, 'w')
-        self.assertEqual(val.raw, 'west')
+        self.assertEqual(val[0].key, 'w')
+        self.assertEqual(val[0].raw, 'west')
 
     def test_no_key(self):
-        val = utils.parse_value('north', {'type': 'string'})
-        self.assertEqual(val.key, '')
-        self.assertEqual(val.raw, 'north')
+        val = utils.parse_values('north', {'type': 'string'})
+        self.assertEqual(val[0].key, '')
+        self.assertEqual(val[0].raw, 'north')
 
     def test_none(self):
-        val = utils.parse_value(None, {'type': 'float'})
-        self.assertEqual(val.key, '')
-        self.assertEqual(val.raw, None)
+        val = utils.parse_values(None, {'type': 'float'})
+        self.assertEqual(val[0].key, '')
+        self.assertEqual(val[0].raw, None)
