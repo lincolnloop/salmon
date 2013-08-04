@@ -48,12 +48,15 @@ def generate_sample_data(point_numbers, interval):
     now = datetime.now()
     for i in range(point_numbers):
         for check in checks:
+            value = randint(1, 100)
             Result.objects.create(
                 check=check,
                 minion=minion,
                 timestamp=now-timedelta(minutes=interval*i),
-                result=str(randint(1, 100)),
-                result_type="float",
+                values={'': {'raw': str(value),
+                             'float': float(value),
+                             'real': float(value),
+                             'type': 'float'}},
                 failed=False)
 
     return (minion, checks[0], checks[1])
@@ -83,14 +86,19 @@ class WhisperDatabaseTest(BaseTestCase):
 
     def test_database_update(self):
         now = datetime.now()
+        key = ''
         result = Result.objects.create(check=self.active_check,
                                        minion=self.minion,
                                        timestamp=now,
-                                       result="101",
-                                       result_type="float",
+                                       values={key: {
+                                           'raw': '101',
+                                           'float': 101.0,
+                                           'real': 101,
+                                           'type': 'integer'
+                                       }},
                                        failed=False)
         history = result.get_history(now-timedelta(minutes=INTERVAL_MIN*20))
-        self.assertEqual(len(history), 20)
+        self.assertEqual(len(history[key]), 20)
 
 
 class MonitorUrlTest(BaseTestCase):
@@ -141,19 +149,24 @@ class MonitorModelCheckTest(TestCase):
         minion, created = Minion.objects.get_or_create(name="minion.local")
         now = datetime.now()
         for check in [self.check, self.check_with_emails]:
+            val = randint(1, 100)
             Result.objects.create(
                 check=check,
                 minion=minion,
                 timestamp=now-timedelta(minutes=INTERVAL_MIN*1),
-                result=str(randint(1, 100)),
-                result_type="float",
+                values={'': {'raw': '101',
+                             'float': float(val),
+                             'real': float(val),
+                             'type': 'float'}},
                 failed=True)
             Result.objects.create(
                 check=check,
                 minion=minion,
                 timestamp=now-timedelta(minutes=INTERVAL_MIN*2),
-                result=str(randint(1, 100)),
-                result_type="float",
+                values={'': {'raw': '101',
+                             'float': float(val),
+                             'real': float(val),
+                             'type': 'float'}},
                 failed=False)
 
     def tearDown(self):
@@ -204,52 +217,41 @@ class MonitorUtilsBuildCommmand(TestCase):
 class CheckerTest(TestCase):
 
     def test_boolean_false_result(self):
-        cast_to = "boolean"
-        raw_value = "False"
+        val = utils.Value(key='', raw='False', cast_to='boolean')
         assertion_string = "{value} == True"
-        checker = utils.Checker(cast_to=cast_to, raw_value=raw_value)
-        self.assertEqual(checker.do_assert(assertion_string), False)
+        self.assertEqual(val.do_assert(assertion_string), False)
 
     def test_boolean_true_result(self):
-        cast_to = "boolean"
-        raw_value = "False"
+        val = utils.Value(key='', raw='False', cast_to='boolean')
         assertion_string = "{value} == False"
-        checker = utils.Checker(cast_to=cast_to, raw_value=raw_value)
-        self.assertEqual(checker.do_assert(assertion_string), True)
+        self.assertEqual(val.do_assert(assertion_string), True)
 
     def test_string_true_result(self):
-        cast_to = "string"
-        raw_value = "HTTP/1.1 200 OK"
+        val = utils.Value(key='', raw='HTTP/1.1 200 OK', cast_to='string')
         assertion_string = "'{value}' == 'HTTP/1.1 200 OK'"
-        checker = utils.Checker(cast_to=cast_to, raw_value=raw_value)
-        self.assertEqual(checker.do_assert(assertion_string), True)
+        self.assertEqual(val.do_assert(assertion_string), True)
 
 
 class AssertCheckTest(TestCase):
     def test_failure(self):
-        failed = utils.check_failed('False', {'type': 'boolean',
-                                              'assert': '{value} == True'})
+        value = utils.Value(key='', raw='False', cast_to='boolean')
+        failed = utils.check_failed([value], {'assert': '{value} == True'})
         self.assertTrue(failed)
-
-    def test_success(self):
-        failed = utils.check_failed('1.0', {'type': 'float',
-                                            'assert': '{value} < 5'})
-        self.assertFalse(failed)
-
-    def test_no_check(self):
-        no_check = utils.check_failed('1.0', {'type': 'float'})
-        self.assertEqual(no_check, None)
 
 
 class ParseValueTest(TestCase):
     def test_with_key(self):
-        val = utils.parse_value({'e': 'east', 'w': 'west'}, {'key': 'w'})
-        self.assertEqual(val, 'west')
+        val = utils.parse_value({'e': 'east', 'w': 'west'},
+                                {'key': 'w', 'type': 'string'})
+        self.assertEqual(val.key, 'w')
+        self.assertEqual(val.raw, 'west')
 
     def test_no_key(self):
-        val = utils.parse_value('north', {})
-        self.assertEqual(val, 'north')
+        val = utils.parse_value('north', {'type': 'string'})
+        self.assertEqual(val.key, '')
+        self.assertEqual(val.raw, 'north')
 
     def test_none(self):
-        val = utils.parse_value(None, {})
-        self.assertEqual(val, "")
+        val = utils.parse_value(None, {'type': 'float'})
+        self.assertEqual(val.key, '')
+        self.assertEqual(val.raw, None)

@@ -88,14 +88,14 @@ class Command(BaseCommand):
                 self.stdout.write(
                     "+     name: {0} -- str(raw_value): {1}".format(
                         name, str(raw_value)))
-            value = utils.parse_value(raw_value, func_opts)
+            values = utils.parse_values(raw_value, func_opts)
             self.stdout.write("   {0}: {1}".format(name, value))
             minion, _ = models.Minion.objects.get_or_create(name=name)
-            failed = utils.check_failed(value, func_opts)
+            failed = utils.check_failed(values, func_opts)
             self.stdout.write("   Assertion: {1}".format(not failed))
+            serialized_values = utils.serialize_values(values)
             models.Result.objects.create(timestamp=timestamp,
-                                         result=value,
-                                         result_type=func_opts['type'],
+                                         values=serialized_values,
                                          check=check,
                                          minion=minion,
                                          failed=failed)

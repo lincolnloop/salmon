@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.text import get_valid_filename
+from jsonfield import JSONField
 
 from . import utils, graph
 
@@ -98,6 +99,7 @@ class Result(models.Model):
     check = models.ForeignKey('monitor.Check')
     minion = models.ForeignKey('monitor.Minion')
     timestamp = models.DateTimeField(default=timezone.now)
+    values = JSONField()
     result = models.TextField()
     result_type = models.CharField(max_length=30)
     failed = models.NullBooleanField(default=True)
@@ -106,44 +108,33 @@ class Result(models.Model):
     def __unicode__(self):
         return self.timestamp.isoformat()
 
-    @property
-    def cleaned_result(self):
-        checker = utils.Checker(cast_to=self.result_type,
-                                raw_value=self.result)
-        return checker.value
-
-    @property
-    def whisper_filename(self):
+    def whisper_filename(self, key):
         """Build a file path to the Whisper database"""
-        return get_valid_filename("{0}__{1}.wsp".format(
-            self.minion.name, self.check.name))
+        name_bits = [self.minion.name, self.check.name, key]
+        return get_valid_filename("{0}.wsp".format("__".join(name_bits)))
 
-    @property
-    def floatified_result(self):
-        cleaned_result = (utils.Checker(cast_to=self.result_type,
-                                        raw_value=self.result)
-                               .value)
-
-        if self.result_type == "percent":
-            return cleaned_result.replace("%", "")
-        if self.result_type == "string":
-            return float(not self.failed)
-        return float(cleaned_result)
-
-    def get_or_create_whisper(self):
+    def get_or_create_whisper(self, key):
         """
         Gets a Whisper DB instance.
         Creates it if it doesn't exist.
         """
-        return graph.WhisperDatabase(self.whisper_filename)
+        return graph.WhisperDatabase(self.whisper_filename(key))
 
     def get_history(self, from_date, to_date=None):
         """Loads in historical data from Whisper database"""
-        return self.get_or_create_whisper().fetch(from_date, to_date)
+        histories = {}
+        for key in self.values.keys():
+            histories[key] = self.get_or_create_whisper(key).fetch(from_date,
+                                                                   to_date)
+        return histories
+
+    def save_to_whisper(self):
+        """Store the value in the whisper database(s)"""
+        for key, value in self.values.items():
+            wsp = self.get_or_create_whisper(key)
+            wsp.update(self.timestamp, value['float'])
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            # Store the value in the whisper database
-            wsp = self.get_or_create_whisper()
-            wsp.update(self.timestamp, self.floatified_result)
+            self.save_to_whisper()
         return super(Result, self).save(*args, **kwargs)

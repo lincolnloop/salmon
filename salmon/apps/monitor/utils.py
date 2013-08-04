@@ -49,6 +49,7 @@ def get_latest_results(minion=None, check_ids=None):
         latest_results = []
     return latest_results
 
+
 def load_salmon_checks():
     """Reads in checks.yaml and returns Python object"""
     checks_yaml = open(settings.SALMON_CHECKS_PATH).read()
@@ -85,60 +86,112 @@ class SaltProxy(object):
             logging.exception("Error parsing results.")
 
 
+def _traverse_dict(obj, key_string):
+    """
+    Traverse a dictionary using a dotted string.
+    Example: 'a.b.c' will return obj['a']['b']['c']
+    """
+    for key in key_string.split('.'):
+        obj = obj[key]
+    return obj
+
+
 def parse_value(raw_value, opts):
-    value = raw_value
+    """Parses Salt return value to find the keys specified"""
+
+    if 'keys' in opts:
+        results = []
+        for key in keys:
+            results.append(Value(
+                key=key, raw_value=_traverse_dict(raw_value),
+                cast_to=opts['type']))
+        return results
+
     if 'key' in opts:
-        key_tree = opts['key'].split('.')
-        for key in key_tree:
-            value = value[key]
-    # Handle the special case where the value is None
-    elif value is None:
-        value = ""
-    return value
+        key = opts['key']
+        raw_value = _traverse_dict(raw_value, opts['key'])
+    else:
+        key = ''
+    return Value(key=key, raw=raw_value, cast_to=opts['type'])
 
 
-def check_failed(value, opts):
+def check_failed(values, opts):
     if 'assert' not in opts:
         return None
-    checker = Checker(cast_to=opts['type'], raw_value=value)
-    return not checker.do_assert(opts['assert'])
+    for value in values:
+        success = value.do_assert(opts['assert'])
+        if not success:
+            return True
+    return False
 
 
-class Checker(object):
-    def __init__(self, cast_to, raw_value):
+def serialize_values(values):
+    """
+    Convert a list of `Value` objects into a dictionary
+    for pushing to the database.
+    """
+
+    serialized = {}
+    for value in values:
+        serialized[value.key] = value.as_dict()
+    return serialized
+
+
+class Value(object):
+    """Everything needed to convert, check, and serialize a value"""
+    def __init__(self, key, raw, cast_to):
+        self.key = key
+        self.raw = raw
         self.cast_to = cast_to
-        self.raw_value = raw_value
-        self.value = self.cast()
+        self.real = self.cast()
+        # wait for float until success is known
+        self.float = None
+        self.success = None
+
+    def as_dict(self):
+        return {'real': self.real, 'raw': self.raw, 'float': self.float,
+                'type': self.cast_to}
 
     def cast(self):
-        if not hasattr(self, "value"):
-            self.value = getattr(
-                self, 'to_{0}'.format(self.cast_to))(self.raw_value)
-        return self.value
+        conv_method = getattr(self, 'to_{0}'.format(self.cast_to))
+        return conv_method()
 
     def do_assert(self, assertion_string):
         # TODO: try to remove the evil
-        success = eval(assertion_string.format(value=self.value))
+        success = eval(assertion_string.format(value=self.real))
         assert isinstance(success, bool)
+        self.success = success
+        self.float = self.floatify()
         return success
 
-    def to_boolean(self, value):
+    def floatify(self):
+        if self.cast_to == 'string':
+            return float(self.success)
+        try:
+            return float(self.real)
+        except ValueError:
+            return float(0)
+
+    def to_boolean(self):
         # bool('False') == True
-        if value == "False":
+        if self.raw == "False":
             return False
-        return bool(value) is True
+        return bool(self.raw) is True
 
-    def to_integer(self, value):
-        return self.to_float(value)
+    def to_integer(self):
+        return self.to_float(self.raw)
 
-    def to_percentage(self, value):
-        return self.to_float(value)
+    def to_percentage(self):
+        return self.to_float(self.raw)
 
-    def to_percentage_with_sign(self, value):
-        return self.to_float(value.rstrip('%'))
+    def to_percentage_with_sign(self):
+        return self.to_float(self.raw.rstrip('%'))
 
-    def to_float(self, value):
-        return float(value)
+    def to_float(self):
+        # float(None) blows up
+        if not self.raw:
+            return float(0)
+        return float(self.raw)
 
-    def to_string(self, value):
-        return str(value)
+    def to_string(self):
+        return str(self.raw)
