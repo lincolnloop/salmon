@@ -92,7 +92,10 @@ def _traverse_dict(obj, key_string):
     Example: 'a.b.c' will return obj['a']['b']['c']
     """
     for key in key_string.split('.'):
-        obj = obj[key]
+        if 'key' in obj and isinstance(obj, dict):
+            obj = obj[key]
+        else:
+           return None
     return obj
 
 
@@ -103,7 +106,7 @@ def parse_values(raw_value, opts):
         results = []
         for key in opts['keys']:
             results.append(Value(
-                key=key, raw_value=_traverse_dict(raw_value),
+                key=key, raw=_traverse_dict(raw_value, key),
                 cast_to=opts['type']))
         return results
 
@@ -117,6 +120,7 @@ def parse_values(raw_value, opts):
 
 def check_failed(values, opts):
     if 'assert' not in opts:
+        [val.floatify() for val in values]
         return None
     for value in values:
         success = value.do_assert(opts['assert'])
@@ -161,16 +165,17 @@ class Value(object):
         success = eval(assertion_string.format(value=self.real))
         assert isinstance(success, bool)
         self.success = success
-        self.float = self.floatify()
+        self.floatify()
         return success
 
     def floatify(self):
         if self.cast_to == 'string':
-            return float(self.success)
+            self.float = float(self.success)
+            return
         try:
-            return float(self.real)
+            self.float = float(self.real)
         except ValueError:
-            return float(0)
+            self.float = float(0)
 
     def to_boolean(self):
         # bool('False') == True
@@ -187,11 +192,11 @@ class Value(object):
     def to_percentage_with_sign(self):
         return self.to_float(self.raw.rstrip('%'))
 
-    def to_float(self):
+    def to_float(self, val):
         # float(None) blows up
-        if not self.raw:
+        if not val:
             return float(0)
-        return float(self.raw)
+        return float(val)
 
     def to_string(self):
         return str(self.raw)
