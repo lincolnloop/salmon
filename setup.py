@@ -18,6 +18,7 @@ setup(
         'logan==0.5.5',
         'gunicorn>=0.17.2,<0.18.0',
         'whisper==0.9.10',
+        'dj-static==0.0.5',
     ],
     entry_points={
         'console_scripts': [
