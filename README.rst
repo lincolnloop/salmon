@@ -35,7 +35,7 @@ Fire up the web server with::
 
 Now create a config file for your checks. There is a `commented example in the repo <https://github.com/lincolnloop/salmon/blob/master/salmon/settings/example/checks.yaml>`_. Store this in the same directory as your ``conf.py`` file (default: ``~/.salmon/checks.yaml``).
 
-Once you have your checks defined, you can run ``manage.py run_checks`` periodically with ``cron`` and view the status at ``http://localhost:9000``.
+Once you have your checks defined, you can run ``salmon run_checks`` periodically with ``cron`` and view the status at ``http://localhost:9000``.
 
 Configuring Salt
 ----------------
