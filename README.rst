@@ -18,7 +18,7 @@ It aims to be simpler, easier to setup, and more efficient than its predecessors
 Installation
 -------------
 
-It's expected that you'll run this on the same server as the Salt master, however it is also possible to run on a host capable of SSHing to the master. 
+It's expected that you'll run this on the same server as the Salt master, however it is also possible to run on a host capable of SSHing to the master.
 
 To bootstrap the project::
 
@@ -51,3 +51,8 @@ For security reasons, you shouldn't run this as ``root`` on your server. Instead
         - file.check_hash
 
 Be sure to restart the ``salt-master`` for configuration changes to take effect. For more details, read the docs on Salt's `client_acl <http://docs.saltstack.com/ref/configuration/master.html#std:conf_master-client_acl>`_.
+
+Additionally, in order for the minions to be able to report back stats from ``ps``
+calls, the ``python-psutil`` package should be installed on each minion server.
+See `https://github.com/saltstack/salt/issues/712 <https://github.com/saltstack/salt/issues/712>`_
+for more information.
