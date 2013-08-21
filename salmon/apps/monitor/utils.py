@@ -21,6 +21,8 @@ def get_latest_results(minion=None, check_ids=None):
         check_ids = (models.Check.objects.filter(active=True)
                                          .values_list('pk', flat=True))
 
+    latest_results = []
+
     if check_ids:
         if len(check_ids) == 1:
             having = "check_id = {0}".format(check_ids[0])
@@ -45,8 +47,7 @@ def get_latest_results(minion=None, check_ids=None):
                 minion_id__in=latest_timestamps[0],
                 check_id__in=latest_timestamps[1],
                 timestamp__in=latest_timestamps[2])
-    else:
-        latest_results = []
+
     return latest_results
 
 def load_salmon_checks():
