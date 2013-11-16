@@ -18,12 +18,12 @@ class Source(models.Model):
 
 class Metric(models.Model):
     OPERATOR_CHOICES = (
-        ('lt', 'less than'),
-        ('le', 'less than or equal to'),
-        ('eq', 'equals'),
-        ('ne', 'not equal to'),
-        ('ge', 'greater than or equal to'),
-        ('gt', 'greater than'),
+        ('lt', 'value < alert'),
+        ('le', 'value <= alert'),
+        ('eq', 'value == alert'),
+        ('ne', 'value != alert'),
+        ('ge', 'value >= alert'),
+        ('gt', 'value > alert'),
     )
     DISPLAY_CHOICES = (
         ('float', 'Number'),
