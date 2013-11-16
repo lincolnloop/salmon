@@ -3,10 +3,12 @@ from . import models
 
 
 class MetricAdmin(admin.ModelAdmin):
-    list_filter = ("source",)
-    date_hierarchy = "last_updated"
-    list_display = ("last_updated", "name", "source", "latest_value",
-                    "alert_triggered")
+    list_filter = ('source',)
+    date_hierarchy = 'last_updated'
+    list_display = ('last_updated', 'name', 'source', 'latest_value',
+                    'alert_triggered', 'display_as', 'alert_operator',
+                    'alert_value')
+    list_editable = ('display_as', 'alert_operator', 'alert_value')
 
     fieldsets = (
         (None, {
