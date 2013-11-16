@@ -26,10 +26,11 @@ SECRET_KEY = '+$l@=0=6ystdflyqticq8hsa_4t#ofipjbknb%8kn5s7www=04'
 
 INSTALLED_APPS = (
     'salmon.core',
-    'salmon.apps.monitor',
+    'salmon.apps.metrics',
 
     'gunicorn',
     'south',
+    'rest_framework',
 
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,8 +41,6 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
 )
-
-TEST_RUNNER = 'discover_runner.DiscoverRunner'
 
 #==============================================================================
 # Calculation of directories relative to the project module location

@@ -19,8 +19,10 @@ def generate_settings():
     site_url = raw_input("What will be the URL for Salmon? [{0}]".format(
         default_url))
     site_url = site_url or default_url
-    random_key = base64.b64encode(os.urandom(KEY_LENGTH))
-    output = conf_template.format(default_key=random_key, site_url=site_url)
+    secret_key = base64.b64encode(os.urandom(KEY_LENGTH))
+    api_key = base64.b64encode(os.urandom(KEY_LENGTH))
+    output = conf_template.format(api_key=api_key, secret_key=secret_key,
+                                  site_url=site_url)
     return output
 
 
