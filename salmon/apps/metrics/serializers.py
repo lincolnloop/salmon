@@ -31,3 +31,8 @@ class MetricSerializer(serializers.ModelSerializer):
         instance.latest_value = attrs['latest_value']
         instance.last_updated = attrs.get('timestamp', now())
         return instance
+
+    def save_object(self, obj, **kwargs):
+        if 'force_insert' in kwargs:
+            del(kwargs['force_insert'])
+        super(MetricSerializer, self).save_object(obj, **kwargs)
