@@ -2,7 +2,7 @@ import operator
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.utils.text import get_valid_filename
-
+from django.template import defaultfilters
 from salmon.core import graph
 
 
@@ -28,6 +28,7 @@ class Metric(models.Model):
     DISPLAY_CHOICES = (
         ('float', 'Number'),
         ('boolean', 'True/False'),
+        ('byte', 'Bytes'),
         ('percentage', 'Percentage'),
     )
     source = models.ForeignKey(Source, null=True)
@@ -69,6 +70,16 @@ class Metric(models.Model):
     def in_alert_state(self):
         oper = getattr(operator, self.alert_operator)
         return bool(oper(self.latest_value, self.alert_value))
+
+    def get_value_display(self):
+        """Human friendly value output"""
+        if self.display_as == 'percentage':
+            return '{0}%'.format(self.latest_value)
+        if self.display_as == 'boolean':
+            return bool(self.latest_value)
+        if self.display_as == 'byte':
+            return defaultfilters.filesizeformat(self.latest_value)
+        return self.latest_value
 
     def save(self, *args, **kwargs):
         if self.alert_operator and self.alert_value:
