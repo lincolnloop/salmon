@@ -6,6 +6,7 @@ from . import models
 
 logger = logging.getLogger(__name__)
 
+
 class MetricSerializer(serializers.ModelSerializer):
     source = serializers.CharField(source='source.name', required=False)
     value = serializers.FloatField(source='latest_value')
@@ -36,3 +37,4 @@ class MetricSerializer(serializers.ModelSerializer):
         if 'force_insert' in kwargs:
             del(kwargs['force_insert'])
         super(MetricSerializer, self).save_object(obj, **kwargs)
+        obj.add_latest_to_archive()

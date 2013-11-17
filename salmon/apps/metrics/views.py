@@ -11,6 +11,7 @@ from rest_framework.authentication import SessionAuthentication
 from salmon.core import authentication, permissions
 from . import forms, models, serializers
 
+
 class CreateMetricView(CreateAPIView):
     """Saves a new metric value (or values)"""
     authentication_classes = (authentication.SettingsAuthentication,
@@ -19,9 +20,13 @@ class CreateMetricView(CreateAPIView):
     model = models.Metric
     serializer_class = serializers.MetricSerializer
 
-    def post_save(self, obj, created=False):
-        super(CreateMetricView, self).post_save(obj, created)
-        obj.add_latest_to_archive()
+    def get_serializer(self, instance=None, data=None, files=None,
+                       many=False, partial=False):
+        if isinstance(data, list):
+            many = True
+        return super(CreateMetricView, self).get_serializer(instance, data,
+                                                            files, many,
+                                                            partial)
 
 
 def dashboard(request):
