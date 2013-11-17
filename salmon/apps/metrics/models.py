@@ -1,4 +1,5 @@
 import operator
+import time
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.utils.text import get_valid_filename
@@ -30,6 +31,7 @@ class Metric(models.Model):
         ('boolean', 'True/False'),
         ('byte', 'Bytes'),
         ('percentage', 'Percentage'),
+        ('second', 'Seconds'),
     )
     source = models.ForeignKey(Source, null=True)
     name = models.CharField(max_length=255)
@@ -79,6 +81,8 @@ class Metric(models.Model):
             return bool(self.latest_value)
         if self.display_as == 'byte':
             return defaultfilters.filesizeformat(self.latest_value)
+        if self.display_as == 'second':
+            return time.strftime('%H:%M:%S', time.gmtime(self.latest_value))
         return self.latest_value
 
     def save(self, *args, **kwargs):
