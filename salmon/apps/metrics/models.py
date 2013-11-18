@@ -1,3 +1,4 @@
+import logging
 import operator
 import time
 from django.db import models
@@ -5,6 +6,10 @@ from django.core.urlresolvers import reverse
 from django.utils.text import get_valid_filename
 from django.template import defaultfilters
 from salmon.core import graph
+
+from . import utils
+
+logger = logging.getLogger(__name__)
 
 
 class Source(models.Model):
@@ -38,6 +43,7 @@ class Metric(models.Model):
     latest_value = models.FloatField(null=True)
     last_updated = models.DateTimeField(null=True)
     is_counter = models.BooleanField(default=False)
+    transform = models.CharField(max_length=20, blank=True)
     alert_operator = models.CharField(max_length=2, choices=OPERATOR_CHOICES,
                                       blank=True)
     alert_value = models.FloatField(null=True, blank=True)
@@ -50,9 +56,15 @@ class Metric(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Metric, self).__init__(*args, **kwargs)
-        # track changes to latest_value
+        # track changes
+        self._reset_changes()
+
+    def _reset_changes(self):
+        self._original = {}
         if self.latest_value is not None:
-            self._last_value = self.latest_value
+            self._original['latest_value'] = self.latest_value
+        if self.last_updated is not None:
+            self._original['last_updated'] = self.last_updated
 
     @property
     def whisper_filename(self):
@@ -92,15 +104,43 @@ class Metric(models.Model):
             return time.strftime('%H:%M:%S', time.gmtime(self.latest_value))
         return self.latest_value
 
-    def save(self, *args, **kwargs):
+    def time_between_updates(self):
+        """Time between current `last_updated` and previous `last_updated`"""
+        if 'last_updated' not in self._original:
+            return 0
+        last_update = self._original['last_updated']
+        this_update = self.last_updated
+        return this_update - last_update
+
+    def do_transform(self):
+        """Apply the transformation (if it exists) to the latest_value"""
+        if not self.transform:
+            return
+        try:
+            self.latest_value = utils.Transform(
+                expr=self.transform, value=self.latest_value,
+                timedelta=self.time_between_updates().total_seconds()).result()
+        except (TypeError, ValueError):
+            logger.warn("Invalid transformation '%s' for metric %s",
+                        self.transfrom, self.pk)
+        self.transform = ''
+
+    def do_counter_conversion(self):
+        """Update latest value to the diff between it and the previous value"""
         if self.is_counter:
-            self.latest_value = (self.latest_value -
-                                 getattr(self, '_last_value',
-                                         self.latest_value))
+            prev_value = self._original.get('latest_value', self.latest_value)
+            self.latest_value = self.latest_value - prev_value
+
+    def check_alarm(self):
         if self.alert_operator and self.alert_value:
             self.alert_triggered = self.in_alert_state()
+
+    def save(self, *args, **kwargs):
+        self.do_transform()
+        self.do_counter_conversion()
+        self.check_alarm()
         obj = super(Metric, self).save(*args, **kwargs)
-        self._last_value = self.latest_value
+        self._reset_changes()
         return obj
 
 
