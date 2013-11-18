@@ -41,6 +41,7 @@ class Metric(models.Model):
     source = models.ForeignKey(Source, null=True)
     name = models.CharField(max_length=255)
     latest_value = models.FloatField(null=True)
+    _previous_counter_value = models.FloatField(null=True)
     last_updated = models.DateTimeField(null=True)
     is_counter = models.BooleanField(default=False)
     transform = models.CharField(max_length=20, blank=True)
@@ -56,13 +57,11 @@ class Metric(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Metric, self).__init__(*args, **kwargs)
-        # track changes
         self._reset_changes()
 
     def _reset_changes(self):
+        """Stores current values for comparison later"""
         self._original = {}
-        if self.latest_value is not None:
-            self._original['latest_value'] = self.latest_value
         if self.last_updated is not None:
             self._original['last_updated'] = self.last_updated
 
@@ -129,7 +128,11 @@ class Metric(models.Model):
     def do_counter_conversion(self):
         """Update latest value to the diff between it and the previous value"""
         if self.is_counter:
-            prev_value = self._original.get('latest_value', self.latest_value)
+            if self._previous_counter_value is None:
+                prev_value = self.latest_value
+            else:
+                prev_value = self._previous_counter_value
+            self._previous_counter_value = self.latest_value
             self.latest_value = self.latest_value - prev_value
 
     def check_alarm(self):

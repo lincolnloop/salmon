@@ -34,11 +34,17 @@ class TestModels(TestCase):
     def test_counter(self):
         first_value = 20
         second_value = 30
+        third_value = 70
         metric = models.Metric(name='a', is_counter=True,
                                latest_value=first_value)
+        metric.save()
         metric.latest_value = second_value
         metric.save()
         self.assertEqual(metric.latest_value, second_value - first_value)
+        metric.latest_value = third_value
+        metric.save()
+        self.assertEqual(metric.latest_value, third_value - second_value)
+
 
     def test_archive(self):
         iters = 5
