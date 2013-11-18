@@ -36,14 +36,22 @@ class MetricGroupAdmin(MetricAdmin):
         queryset = super(MetricGroupAdmin, self).get_queryset(request)
         # poor-man's DISTINCT ON for Sqlite3
         qs_values = queryset.values('id', 'name')
-        distinct_names = {metric['name']: metric['id'] for metric in qs_values}
+        # 2.7+ only :(
+        # = {metric['name']: metric['id'] for metric in qs_values}
+        distinct_names = {}
+        for metric in qs_values:
+            distinct_names[metric['name']] = metric['id']
         queryset = self.model.objects.filter(id__in=distinct_names.values())
         return queryset
 
     def save_model(self, request, obj, form, change):
         """Updates all metrics with the same name"""
         like_metrics = self.model.objects.filter(name=obj.name)
-        updates = {key: form.cleaned_data[key] for key in form.changed_data}
+        # 2.7+ only :(
+        # = {key: form.cleaned_data[key] for key in form.changed_data}
+        updates = {}
+        for key in form.changed_data:
+            updates[key] = form.cleaned_data[key]
         like_metrics.update(**updates)
 
 
