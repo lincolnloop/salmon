@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url, include
 from django.contrib import admin
 
-from salmon.apps.metrics import views as metrics_views
+from salmon.metrics import views as metrics_views
 
 admin.autodiscover()
 

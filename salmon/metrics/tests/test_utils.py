@@ -1,6 +1,6 @@
 from django.utils import unittest
 
-from salmon.apps.metrics.utils import Transform
+from salmon.metrics.utils import Transform
 
 class TransformTests(unittest.TestCase):
     def test_valid(self):

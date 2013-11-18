@@ -2,7 +2,7 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
-from salmon.apps.metrics.tests import generate_sample_data
+from salmon.metrics.tests import generate_sample_data
 
 
 class Command(BaseCommand):

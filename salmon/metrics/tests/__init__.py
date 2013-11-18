@@ -1,7 +1,7 @@
 import datetime
 import random
 
-from salmon.apps.metrics import models
+from salmon.metrics import models
 
 def generate_sample_data(point_numbers, interval):
     """

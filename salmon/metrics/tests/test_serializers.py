@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from salmon.apps.metrics.serializers import MetricSerializer
-from salmon.apps.metrics import models
+from salmon.metrics.serializers import MetricSerializer
+from salmon.metrics import models
 
 class TestSerializer(TestCase):
 

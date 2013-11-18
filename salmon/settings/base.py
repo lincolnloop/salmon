@@ -26,7 +26,7 @@ SECRET_KEY = '+$l@=0=6ystdflyqticq8hsa_4t#ofipjbknb%8kn5s7www=04'
 
 INSTALLED_APPS = (
     'salmon.core',
-    'salmon.apps.metrics',
+    'salmon.metrics',
 
     'gunicorn',
     'south',
