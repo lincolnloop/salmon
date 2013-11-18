@@ -5,9 +5,10 @@ class MetricAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = ('source',)
     list_display = ('name', 'source', 'last_updated', 'value_display',
-                    'alert_triggered', 'display_as', 'alert_operator',
-                    'alert_value')
-    list_editable = ('display_as', 'alert_operator', 'alert_value')
+                    'alert_triggered', 'display_as', 'is_counter',
+                    'alert_operator', 'alert_value')
+    list_editable = ('display_as', 'is_counter',
+                     'alert_operator', 'alert_value')
 
 
     def __init__(self, *args, **kwargs):
@@ -25,8 +26,9 @@ class MetricAdmin(admin.ModelAdmin):
 
 
 class MetricGroupAdmin(MetricAdmin):
-    list_filter = ('display_as',)
-    list_display = ('name', 'display_as', 'alert_operator', 'alert_value')
+    list_filter = ('display_as', 'is_counter')
+    list_display = ('name', 'display_as', 'is_counter', 'alert_operator',
+                    'alert_value')
 
 
     def get_queryset(self, request):

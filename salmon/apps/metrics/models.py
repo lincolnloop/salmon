@@ -37,6 +37,7 @@ class Metric(models.Model):
     name = models.CharField(max_length=255)
     latest_value = models.FloatField(null=True)
     last_updated = models.DateTimeField(null=True)
+    is_counter = models.BooleanField(default=False)
     alert_operator = models.CharField(max_length=2, choices=OPERATOR_CHOICES,
                                       blank=True)
     alert_value = models.FloatField(null=True, blank=True)
@@ -46,6 +47,12 @@ class Metric(models.Model):
 
     class Meta:
         unique_together = ('source', 'name')
+
+    def __init__(self, *args, **kwargs):
+        super(Metric, self).__init__(*args, **kwargs)
+        # track changes to latest_value
+        if self.latest_value is not None:
+            self._last_value = self.latest_value
 
     @property
     def whisper_filename(self):
@@ -86,9 +93,15 @@ class Metric(models.Model):
         return self.latest_value
 
     def save(self, *args, **kwargs):
+        if self.is_counter:
+            self.latest_value = (self.latest_value -
+                                 getattr(self, '_last_value',
+                                         self.latest_value))
         if self.alert_operator and self.alert_value:
             self.alert_triggered = self.in_alert_state()
-        return super(Metric, self).save(*args, **kwargs)
+        obj = super(Metric, self).save(*args, **kwargs)
+        self._last_value = self.latest_value
+        return obj
 
 
 class MetricGroup(Metric):
