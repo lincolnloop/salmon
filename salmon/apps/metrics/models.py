@@ -89,3 +89,9 @@ class Metric(models.Model):
         if self.alert_operator and self.alert_value:
             self.alert_triggered = self.in_alert_state()
         return super(Metric, self).save(*args, **kwargs)
+
+
+class MetricGroup(Metric):
+    """Used to edit all metrics with the same name in the admin"""
+    class Meta:
+        proxy = True
