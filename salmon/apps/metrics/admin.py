@@ -9,15 +9,6 @@ class MetricAdmin(admin.ModelAdmin):
                     'alert_value')
     list_editable = ('display_as', 'alert_operator', 'alert_value')
 
-    fieldsets = (
-        (None, {
-            'fields': (('name', 'source'), ('alert_operator', 'alert_value'),
-                        'display_as'),
-        }),
-        ('Last update', {
-            'fields': ('last_updated', 'latest_value', 'alert_triggered'),
-        }),
-    )
 
     def __init__(self, *args, **kwargs):
         super(MetricAdmin, self).__init__(*args, **kwargs)
@@ -37,11 +28,6 @@ class MetricGroupAdmin(MetricAdmin):
     list_filter = ('display_as',)
     list_display = ('name', 'display_as', 'alert_operator', 'alert_value')
 
-    fieldsets = (
-        (None, {
-            'fields': ('display_as', ('alert_operator', 'alert_value')),
-        }),
-    )
 
     def get_queryset(self, request):
         """Shows one entry per distinct metric name"""
