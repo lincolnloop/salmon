@@ -11,7 +11,7 @@ class TestModels(TestCase):
     def test_yes_alert(self):
         metric = models.Metric(latest_value=10, alert_operator='lt',
                                alert_value=8)
-        self.assertTrue(metric.in_alert_state())
+        self.assertFalse(metric.in_alert_state())
 
     def test_counter(self):
         first_value = 20
