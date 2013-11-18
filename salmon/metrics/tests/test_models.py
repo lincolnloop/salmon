@@ -7,19 +7,13 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from salmon.core.tests import BaseTestCase
 from salmon.metrics import models
 
 INTERVAL_MIN = 5
 
 
-@override_settings(SALMON_WHISPER_DB_PATH=mkdtemp())
-class TestModels(TestCase):
-
-    def tearDown(self):
-        try:
-            shutil.rmtree(settings.SALMON_WHISPER_DB_PATH)
-        except OSError:
-            pass
+class TestModels(BaseTestCase):
 
     def test_no_alert(self):
         metric = models.Metric(latest_value=10, alert_operator='lt',
