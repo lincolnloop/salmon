@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='salmon',
-    version='0.1.6-dev',
+    version='0.2.0-dev',
     description="A simple metric collector with alerts.",
     long_description=open('README.rst').read(),
     author="Peter Baumgarter",
