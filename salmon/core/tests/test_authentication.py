@@ -1,15 +1,15 @@
 import base64
 from django.conf import settings
-from django.test import TestCase
+from django.utils import unittest
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 
 from rest_framework import exceptions
 
-from .authentication import SettingsAuthentication
+from salmon.core.authentication import SettingsAuthentication
 
 
-class TestAuthentication(TestCase):
+class TestAuthentication(unittest.TestCase):
     def setUp(self):
         self.req_factory = RequestFactory()
 
