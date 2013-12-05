@@ -1,4 +1,4 @@
-from django.core.management import call_command
+import subprocess
 from django.conf import settings
 
 
@@ -12,16 +12,22 @@ class SalmonHTTPServer(object):
         self.port = port or settings.WEB_PORT
         self.workers = workers
 
-        options = (settings.WEB_OPTIONS or {}).copy()
-        options['debug'] = debug
-        options.setdefault('bind', '%s:%s' % (self.host, self.port))
-        options.setdefault('daemon', False)
-        options.setdefault('timeout', 30)
-        options.setdefault('proc_name', 'Salmon')
-        if workers:
-            options['workers'] = workers
+        options = settings.WEB_OPTIONS or {}
+        gunicorn_args = [
+            '--bind={0}:{1}'.format(self.host, self.port),
+            '--timeout={0}'.format(options.get('timeout', 30)),
+            '--name={0}'.format(options.get('name', 'Salmon')),
+        ]
 
-        self.options = options
+        for bool_arg in ['debug', 'daemon']:
+            if options.get(bool_arg):
+                gunicorn_args.append('--{0}'.format(options[bool_arg]))
+
+        if workers:
+            '--workers={0}'.format(workers)
+
+        self.gunicorn_args = gunicorn_args
 
     def run(self):
-        call_command('run_gunicorn', **self.options)
+        command = ['gunicorn', 'salmon.wsgi:application']
+        subprocess.call(command + self.gunicorn_args)

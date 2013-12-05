@@ -1,6 +1,8 @@
 import base64
 import os
-from logan.runner import run_app
+import sys
+from optparse import OptionParser
+from logan.runner import run_app, parse_args, configure_app as logan_configure
 from salmon.settings import base as base_settings
 
 KEY_LENGTH = 40
@@ -34,6 +36,18 @@ def main():
         settings_initializer=generate_settings,
         settings_envvar='SALMON_CONF',
     )
+
+
+# used for wsgi initialization
+def configure_app(**kwargs):
+    """Builds up the settings using the same method as logan"""
+    sys_args = sys.argv
+    args, command, command_args = parse_args(sys_args[1:])
+    parser = OptionParser()
+    parser.add_option('--config', metavar='CONFIG')
+    (options, logan_args) = parser.parse_args(args)
+    config_path = options.config
+    logan_configure(config_path=config_path, **kwargs)
 
 if __name__ == '__main__':
     main()

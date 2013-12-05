@@ -14,7 +14,7 @@ setup(
         'django==1.6',
         'djangorestframework==2.3.9',
         'South==0.8.3',
-        'logan==0.5.5',
+        'logan==0.5.9.1',
         'gunicorn>=0.17.2,<0.18.0',
         'whisper==0.9.10',
         'dj-static==0.0.5',
