@@ -4,9 +4,17 @@
 {% block content %}
     <h2>{{ source.name }}</h2>
     <form action="{% url "history" name=source.name %}" method="get" accept-charset="utf-8" class="form-inline">
-        {{ form.from_date }} {{ form.to_date }}
+        <div class="form-group">
+        {{ form.from_date }}
+        </div>
+        <div class="form-group">
+            to
+        </div>
+        <div class="form-group">
+            {{ form.to_date }}
+        </div>
         <div class="btn-group">
-            <button class="btn" type="submit">Filter</button>
+            <button class="btn btn-default" type="submit">Filter</button>
         </div>
     </form>
     <div class="row">
@@ -15,6 +23,7 @@
         <h4>{{ graph.name }}</h4>
         <div id="{{ graph.name|slugify }}" class="graph" style="width:100%;height:300px" data-type="{{ graph.type }}" data-points="{{ graph.data }}"></div>
     </div>
+    {% cycle '' '</div><div class="row">' %}
     {% endfor %}
     </div>
 {% endblock %}
@@ -60,6 +69,7 @@
             // update every minute
             setInterval(function () { app.updateContent(drawGraphs) },
                         {{ refresh_interval_history }});
+            $('input[type="text"]').addClass('form-control');
         })(jQuery, window.app);
     </script>
 {% endblock %}
