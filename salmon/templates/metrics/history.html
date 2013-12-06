@@ -1,9 +1,9 @@
 {% extends parent_template %}
-{% block head_title %}: {{ minion.name }}{% endblock %}
+{% block head_title %}: {{ source.name }}{% endblock %}
 
 {% block content %}
-    <h2>{{ minion.name }}</h2>
-    <form action="{% url "history" name=minion.name %}" method="get" accept-charset="utf-8" class="form-inline">
+    <h2>{{ source.name }}</h2>
+    <form action="{% url "history" name=source.name %}" method="get" accept-charset="utf-8" class="form-inline">
         {{ form.from_date }} {{ form.to_date }}
         <div class="btn-group">
             <button class="btn" type="submit">Filter</button>
