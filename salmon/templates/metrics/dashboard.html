@@ -4,8 +4,8 @@
 {% block precontent %}
     <div class="col-md-4 pull-right">
         <div class="input-group">
-          <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
           <input type="text" class="form-control" id="filter-source" placeholder="filter on source:name" />
+          <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
         </div>
     </div>
 {% endblock %}
@@ -13,7 +13,7 @@
 
     {% for source, metrics in source_metrics.items %}
     <div class="source" data-source="{{ source.name }}">
-    <h2><a href="{{ source.get_absolute_url }}">{{ source.name }}</a></h2>
+    <h2{% if forloop.first %} class="no-top"{% endif %}><a href="{{ source.get_absolute_url }}">{{ source.name }}</a></h2>
     <table class="table table-striped table-hover">
         <thead>
             <tr>

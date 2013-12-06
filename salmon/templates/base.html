@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <link rel="shortcut icon" type="image/x-icon" href="{{ STATIC_URL }}/favicon.ico" />
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-datetimepicker.min.css" />
     <style type="text/css">
         body { background:#F0F2F4; }
         #container { padding-top:40px; }
@@ -14,6 +15,7 @@
         .navbar-inner { color: #EFEBC4; }
         .progress { margin-bottom:0; }
         .fine-print { color:#ccc; font-weight:100; }
+        .no-top { margin-top:0; }
         .color1 { background:#4D5E66; }
         .color2 { background:#BFB468; }
         .color3 { background:#EFEBC4; }
@@ -46,6 +48,7 @@
     </div>
 </div>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery-2.0.0.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/vendor/bootstrap.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery.timeago.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/app/app.js"></script>
 {% block extrajs %}{% endblock %}

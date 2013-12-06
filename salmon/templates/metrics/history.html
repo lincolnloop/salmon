@@ -1,22 +1,31 @@
 {% extends parent_template %}
 {% block head_title %}: {{ source.name }}{% endblock %}
-
-{% block content %}
-    <h2>{{ source.name }}</h2>
-    <form action="{% url "history" name=source.name %}" method="get" accept-charset="utf-8" class="form-inline">
+{% block precontent %}
+    <form action="{% url "history" name=source.name %}" method="get" accept-charset="utf-8" class="form-inline pull-right">
         <div class="form-group">
-        {{ form.from_date }}
+            <div class="input-group">
+                {{ form.from_date }}
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
         </div>
         <div class="form-group">
             to
         </div>
         <div class="form-group">
-            {{ form.to_date }}
+            <div class="input-group">
+                {{ form.to_date }}
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
         </div>
         <div class="btn-group">
             <button class="btn btn-default" type="submit">Filter</button>
         </div>
     </form>
+    <h1 class="no-top">{{ source.name }}</h1>
+{% endblock %}
+{% block content %}
     <div class="row">
     {% for graph in graphs %}
     <div class="col-md-5{% cycle '' ' col-md-offset-2' %}">
@@ -30,9 +39,15 @@
 
 {% block extrajs %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/canvasjs.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/moment.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript">
         (function ($, app) {
-
+            /* dirty hacks. don't judge me */
+            $('.form-group').css('max-width', '200px');
+            $('input[type="text"]').addClass('form-control')
+                                   .data('format', 'YYYY-MM-DD HH:mm:ss')
+                                   .parent().datetimepicker();
             function formatterSuffix(maxVal) {
                 if (maxVal > 1000000000) {
                     return {
@@ -114,7 +129,6 @@
             // update every minute
             setInterval(function () { app.updateContent(drawGraphs) },
                         {{ refresh_interval_history }});
-            $('input[type="text"]').addClass('form-control');
         })(jQuery, window.app);
     </script>
 {% endblock %}
