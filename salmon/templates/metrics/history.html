@@ -29,40 +29,85 @@
 {% endblock %}
 
 {% block extrajs %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery.flot.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery.flot.time.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/canvasjs.min.js"></script>
     <script type="text/javascript">
         (function ($, app) {
-            var options = {
-                    base: {
-                        xaxis: { mode: "time" },
-                        yaxis: { min:0 },
-                        series: {
-                            lines: {
-                                fill: true,
-                                lineWidth:3,
-                                fillColor: 'rgba(151,187,205,0.5)'
-                            },
-                            shadowSize: 0
-                        },
-                        colors: ['rgba(151,187,205,1)'],
-                        grid: {
-                            borderWidth: 0,
-                            color: '#ddd'
-                        }
-                    },
-                    percentage: {},
+
+            function formatterSuffix(maxVal) {
+                if (maxVal > 1000000000) {
+                    return {
+                        formatter: '#,,,.#',
+                        suffix: 'G'
+                    };
+                }
+                if (maxVal > 1000000) {
+                    return {
+                        formatter: '#,,.#',
+                        suffix: 'M'
+                    };
+                }
+                if (maxVal > 1000) {
+                    return {
+                        formatter: '#,.#',
+                        suffix: 'k'
+                    };
+                }
+                return {
+                    formatter: '',
+                    suffix: ''
                 };
-            $.extend(options.percentage, options.base, {
-                yaxis: { min:0, max: 100 }
-            });
+            }
 
             function drawGraphs () {
                 $('.graph').each(function (idx, el) {
-                    var $graph = $(el),
-                        data = $graph.data('points'),
-                        type = $graph.data('type')
-                    $graph.plot([data], options[type] || options.base);
+                    var yMax = 0, yMin = 0,
+                        $graph = $(el),
+                        data = $.map($graph.data('points'), function (point) {
+                            if (point[1] > yMax) {
+                                yMax = point[1];
+                            }
+                            if (point[1] < yMin) {
+                                yMin = point[1];
+                            }
+                            return {x: point[0], y: point[1]};
+                        }),
+                        formatAxis = formatterSuffix(yMax),
+                        type = $graph.data('type'),
+                        chart = new CanvasJS.Chart(el.id, {
+                            backgroundColor: 'transparent',
+                            axisY: {
+                                minimum: yMin,
+                                valueFormatString: formatAxis.formatter,
+                                suffix: formatAxis.suffix,
+                                tickThickness: 0,
+                                lineThickness: 1,
+                                lineColor: 'rgba(0,0,0,.1)',
+                                gridThickness: 1,
+                                gridColor: 'rgba(0,0,0,.05)',
+                                labelFontFamily: 'arial',
+                                labelFontSize: 12,
+                                labelFontColor: '#666'
+                            },
+                            axisX: {
+                                tickThickness: 0,
+                                lineThickness: 1,
+                                lineColor: 'rgba(0,0,0,.1)',
+                                gridThickness: 1,
+                                gridColor: 'rgba(0,0,0,.05)',
+                                labelFontFamily: 'arial',
+                                labelFontSize: 12,
+                                labelFontColor: '#666'
+                            },
+                            data: [
+                                {
+                                    type: 'area',
+                                    color: 'rgba(151,187,205,0.9)',
+                                    xValueType: 'dateTime',
+                                    dataPoints: data
+                                }
+                            ]   
+                        });
+                        chart.render();
                 });
             }
             drawGraphs();
