@@ -9,8 +9,8 @@
         body { background:#F0F2F4; }
         #container { padding-top:40px; }
         #footer { padding: 50px 180px 0; }
-        #footer .span2 { height:10px; width:120px; margin:0; }
-        .navbar .brand { color:#F29057; text-shadow: 0 1px 0 rgb(31, 16, 8); }
+        #footer .col-md-2 { height:10px; width:120px; margin:0; }
+        .navbar-brand { color:#F29057; text-shadow: 0 1px 0 rgb(31, 16, 8); }
         .navbar-inner { color: #EFEBC4; }
         .progress { margin-bottom:0; }
         .fine-print { color:#ccc; font-weight:100; }
@@ -23,23 +23,25 @@
     {% block extrahead %}{% endblock %}
 </head>
 <body>
-<div class="navbar navbar-static-top">
-        <div class="navbar-inner color1">
-            <a class="brand" href="/"><img src="{{ STATIC_URL }}img/salmon.png" alt=Salmon /></a>
-            <ul class="nav"></ul>
-        </div>
+<nav class="navbar navbar-default navbar-static-top color1" role="navigation">
+    <div class="container">
+    <div class="navbar-header">
+        <ul class="nav"></ul>
+        <a class="navbar-brand" href="/"><img src="{{ STATIC_URL }}img/salmon.png" alt="Salmon" /></a>
     </div>
+</div>
+</nav>
 <div class="container" id="container">
     <div id="content"> <!-- used to load in PJAX -->
         {% block content %}{% endblock %}
     </div>
     <div class="row" id="footer">
         <p class="fine-print">Last updated: <span id="last-update"></span></p>
-        <div class="span2 color1"></div>
-        <div class="span2 color2"></div>
-        <div class="span2 color3"></div>
-        <div class="span2 color4"></div>
-        <div class="span2 color5"></div>
+        <div class="col-md-2 color1"></div>
+        <div class="col-md-2 color2"></div>
+        <div class="col-md-2 color3"></div>
+        <div class="col-md-2 color4"></div>
+        <div class="col-md-2 color5"></div>
     </div>
 </div>
 <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/jquery-2.0.0.min.js"></script>

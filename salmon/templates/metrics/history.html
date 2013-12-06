@@ -11,9 +11,9 @@
     </form>
     <div class="row">
     {% for graph in graphs %}
-    <div class="span5{% cycle '' ' offset2' %}">
+    <div class="col-md-5{% cycle '' ' col-md-offset-2' %}">
         <h4>{{ graph.name }}</h4>
-        <div id="{{ graph.name|slugify }}" class="graph" style="width:380px;height:300px" data-type="{{ graph.type }}" data-points="{{ graph.data }}"></div>
+        <div id="{{ graph.name|slugify }}" class="graph" style="width:100%;height:300px" data-type="{{ graph.type }}" data-points="{{ graph.data }}"></div>
     </div>
     {% endfor %}
     </div>
