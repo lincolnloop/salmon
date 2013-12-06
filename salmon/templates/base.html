@@ -32,6 +32,7 @@
 </div>
 </nav>
 <div class="container" id="container">
+        {% block precontent %}{% endblock %}
     <div id="content"> <!-- used to load in PJAX -->
         {% block content %}{% endblock %}
     </div>
