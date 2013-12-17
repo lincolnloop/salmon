@@ -1,3 +1,4 @@
+import os
 import subprocess
 from django.conf import settings
 
@@ -29,5 +30,6 @@ class SalmonHTTPServer(object):
         self.gunicorn_args = gunicorn_args
 
     def run(self):
-        command = ['gunicorn', 'salmon.wsgi:application']
+        command = [os.path.join(settings.PYTHON_BIN, 'gunicorn'),
+                   'salmon.wsgi:application']
         subprocess.call(command + self.gunicorn_args)
