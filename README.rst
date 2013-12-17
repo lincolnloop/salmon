@@ -16,6 +16,8 @@ The original release of Salmon was coupled to `Salt <http://docs.saltstack.com/>
 
 .. image:: http://cl.ly/image/3s340i0W0N06/content.png
 
+.. image:: https://cloudup.com/chXR0xnFtkf+
+
 Installation
 -------------
 
