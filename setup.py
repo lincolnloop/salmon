@@ -3,15 +3,15 @@ from setuptools import setup, find_packages
 
 setup(
     name='salmon',
-    version='0.2.0-dev',
+    version='0.2.0',
     description="A simple metric collector with alerts.",
     long_description=open('README.rst').read(),
     author="Peter Baumgarter",
     author_email='pete@lincolnloop.com',
     url='https://github.com/lincolnloop/salmon',
-    license='LICENSE',
+    license='BSD',
     install_requires=[
-        'django==1.6',
+        'django==1.6.1',
         'djangorestframework==2.3.9',
         'South==0.8.3',
         'logan==0.5.9.1',
