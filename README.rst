@@ -34,9 +34,35 @@ Fire up the web server with::
 
     salmon start
 
-
-Sending Metrics from Salt
+Sending Metrics to Salmon
 -------------------------
+
+Metrics are sent in as JSON over HTTP. The format for a single metric::
+
+    {
+        "source": "test.example.com",
+        "name": "load",
+        "value": 0.1
+    }
+
+Multiple metrics can be sent as an array::
+
+    [
+        {"source": "test.example.com", "name": "load", "value": 0.1},
+        {"source": "multi.example.com", "name": "cpu", "value": 55.5}
+    ]
+
+The API endpoint is ``/api/v1/metric/``. If your Salmon server lives at http://salmon.example.com, you can ``POST`` to ``http://salmon.example.com/api/v1/metric/``. Pass in your API key as found in ``~/.salmon/conf.py`` for authentication. Using Curl, it would look something like this::
+
+    curl -i --user "<API_KEY>:" \
+         -H "Content-Type: application/json" \
+         -X POST \
+         -d '{"source": "test.example.com", "name": "load", "value": 0.1}' \
+         http://salmon.example.com/api/v1/metric/
+
+
+Using Salt
+^^^^^^^^^^
 
 1. Setup the `salt-stats <https://github.com/lincolnloop/salt-stats>`_ states on your master or just grab the `salmon returner <https://github.com/lincolnloop/salt-stats/blob/master/salt/_returners/salmon_return.py>`_
 2. Add the path to your Salmon install and API key (found in ``~/.salmon/conf.py``) to your Salt Pillar. (`salmon pillar example <https://github.com/lincolnloop/salt-stats/blob/master/salt/_returners/salmon_return.py#L10-L12>`_)
