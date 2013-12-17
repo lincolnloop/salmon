@@ -3,8 +3,8 @@ python:
   - "2.7"
   - "2.6"
 install:
-  - "pip install . coveralls --use-mirrors"
+  - "pip install -e . coveralls --use-mirrors"
   - "yes http://salmon.local | salmon init test.conf"
-script: coverage run --source=salmon.apps $VIRTUAL_ENV/bin/salmon --config=test.conf test salmon
+script: coverage run --source=salmon $VIRTUAL_ENV/bin/salmon --config=test.conf test
 after_success:
   - coveralls

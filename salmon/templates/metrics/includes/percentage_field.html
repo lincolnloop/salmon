@@ -1,0 +1,10 @@
+<div class="progress progress-">
+    <div class="progress-bar progress-bar-{% if metric.alert_triggered %}danger{% else %}success{% endif %}" style="width: {{ metric.latest_value|floatformat:0 }}%">
+        {% if metric.latest_value >= 50 %}
+            {{ metric.latest_value|floatformat:0 }}%
+        {% endif %}
+    </div>
+    {% if metric.latest_value < 50 %}
+        &nbsp;<small>{{ metric.latest_value|floatformat:0 }}%</small>
+    {% endif %}
+</div>

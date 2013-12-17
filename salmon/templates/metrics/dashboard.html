@@ -1,0 +1,81 @@
+{% extends parent_template %}
+{% load metrics %}
+{% block head_title %}: Status{% endblock %}
+{% block precontent %}
+    {% if source_metrics.items %}
+    <div class="col-md-4 pull-right">
+        <div class="input-group">
+          <input type="text" class="form-control" id="filter-source" placeholder="filter on source:name" />
+          <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+{% block content %}
+
+    {% for source, metrics in source_metrics.items %}
+    <div class="source" data-source="{{ source.name }}">
+    <h2{% if forloop.first %} class="no-top"{% endif %}><a href="{{ source.get_absolute_url }}">{{ source.name }}</a></h2>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>name</th>
+                <th>status</th>
+                <th>last checked</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for metric in metrics %}
+            <tr class="metric{% if metric.alert_triggered %} error{% endif %}" data-name="{{ metric.name }}">
+                <td><tt>{{ metric.name }}</tt></td>
+                <td>{% display_result metric %}</td>
+                <td><time class="timeago" title="{{ metric.last_updated.isoformat }}" datetime="{{ metric.last_updated.isoformat }}">{{ metric.last_updated }}</time></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% empty %}
+    <div class="well">
+        <p><span class="label label-danger">No Data</span> Looks like you just started.</p>
+    </div>
+    {% endfor %}
+{% endblock content %}
+{% block extrajs %}
+    <script type="text/javascript">
+        (function ($, app) {
+            function updateFilter () {
+                var $sources = $('.source'),
+                    $metrics = $('.metric'),
+                    searches = $('#filter-source').val().split(':'),
+                    sourceSearch = searches[0],
+                    metricSearch = searches.length > 1 ? searches[1] : '';
+                if (sourceSearch) {
+                    $sources.each(function (idx, el) {
+                        var $source = $(el);
+                        if ($source.data('source').indexOf(sourceSearch) > -1) {
+                            $source.show();
+                        } else {
+                            $source.hide();
+                        }
+                    });
+                }
+                if (metricSearch) {
+                    $metrics.each(function (idx, el) {
+                        var $metric = $(el);
+                        if ($metric.data('name').indexOf(metricSearch) > -1) {
+                            $metric.show();
+                        } else {
+                            $metric.hide();
+                        }
+                    });
+                }
+
+            }
+
+            setInterval(app.updateContent, 60000, updateFilter);
+            $('#filter-source').on('input', updateFilter);
+
+        })(jQuery, window.app);
+    </script>
+{% endblock %}

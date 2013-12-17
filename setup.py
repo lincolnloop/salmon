@@ -3,22 +3,22 @@ from setuptools import setup, find_packages
 
 setup(
     name='salmon',
-    version='0.1.6-dev',
-    description="A monitoring system built on top of Salt.",
+    version='0.2.0',
+    description="A simple metric collector with alerts.",
     long_description=open('README.rst').read(),
     author="Peter Baumgarter",
     author_email='pete@lincolnloop.com',
     url='https://github.com/lincolnloop/salmon',
-    license='LICENSE',
+    license='BSD',
     install_requires=[
-        'django==1.5.1',
-        'django-discover-runner==0.4.0',
-        'South==0.8.0',
-        'pyyaml==3.10',
-        'logan==0.5.5',
-        'gunicorn>=0.17.2,<0.18.0',
+        'django==1.6.1',
+        'djangorestframework==2.3.9',
+        'South==0.8.3',
+        'logan==0.5.9.1',
+        'gunicorn==18.0',
         'whisper==0.9.10',
         'dj-static==0.0.5',
+        'pytz',
     ],
     entry_points={
         'console_scripts': [
