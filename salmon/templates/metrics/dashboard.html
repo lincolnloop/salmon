@@ -2,12 +2,14 @@
 {% load metrics %}
 {% block head_title %}: Status{% endblock %}
 {% block precontent %}
+    {% if source_metrics.items %}
     <div class="col-md-4 pull-right">
         <div class="input-group">
           <input type="text" class="form-control" id="filter-source" placeholder="filter on source:name" />
           <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
         </div>
     </div>
+    {% endif %}
 {% endblock %}
 {% block content %}
 
@@ -35,7 +37,7 @@
     </div>
     {% empty %}
     <div class="well">
-        <p><span class="label label-important">No Data</span> Looks like you just started.</p>
+        <p><span class="label label-danger">No Data</span> Looks like you just started.</p>
     </div>
     {% endfor %}
 {% endblock content %}
