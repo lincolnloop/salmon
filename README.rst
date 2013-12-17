@@ -7,18 +7,17 @@ salmon
 .. image:: https://coveralls.io/repos/lincolnloop/salmon/badge.png?branch=master
    :target: https://coveralls.io/r/lincolnloop/salmon?branch=master
 
-A multi-server monitoring system built on top of `Salt <http://www.saltstack.org>`_ using Django.
+A simple monitoring system built on top of Django.
 
-It can serve both as an alerting system like `monit <http://mmonit.com/monit/>`_  and a monitoring system like `munin <http://munin-monitoring.org/>`_ (using `Graphite's whisper database <http://graphite.readthedocs.org/en/latest/whisper.html>`_).
+The intent is to serve both as an alerting system like `monit <http://mmonit.com/monit/>`_  and a monitoring system like `munin <http://munin-monitoring.org/>`_ (using `Graphite's whisper database <http://graphite.readthedocs.org/en/latest/whisper.html>`_).
 
-It aims to be simpler, easier to setup, and more efficient than its predecessors by taking advantage of Salt for data gathering and transport.
+The original release of Salmon was coupled to `Salt <http://docs.saltstack.com/>`_ and designed to monitor servers (**Sal** t **Mon** itor). As of v0.2.0, the system has been decoupled from Salt and ingests data via a simple HTTP interface.
+
 
 .. image:: http://cl.ly/image/3s340i0W0N06/content.png
 
 Installation
 -------------
-
-It's expected that you'll run this on the same server as the Salt master, however it is also possible to run on a host capable of SSHing to the master.
 
 To bootstrap the project::
 
@@ -33,24 +32,14 @@ Fire up the web server with::
 
     salmon start
 
-Now create a config file for your checks. There is a `commented example in the repo <https://github.com/lincolnloop/salmon/blob/master/salmon/settings/example/checks.yaml>`_. Store this in the same directory as your ``conf.py`` file (default: ``~/.salmon/checks.yaml``).
 
-Once you have your checks defined, you can run ``manage.py run_checks`` periodically with ``cron`` and view the status at ``http://localhost:9000``.
+Sending Metrics from Salt
+-------------------------
 
-Configuring Salt
-----------------
-
-For security reasons, you shouldn't run this as ``root`` on your server. Instead, use (or create) a less privileged user and modify your Salt master config to only provide access to the specific functions it needs to check. For example, you could create ``/etc/salt/master.d/monitor_acl.conf`` with the following contents::
-
-    client_acl:
-      youruser:
-        - test.ping
-        - service.status
-        - disk.usage
-        - 'ps.*'
-        - file.check_hash
-
-Be sure to restart the ``salt-master`` for configuration changes to take effect. For more details, read the docs on Salt's `client_acl <http://docs.saltstack.com/ref/configuration/master.html#std:conf_master-client_acl>`_.
+1. Setup the `salt-stats <https://github.com/lincolnloop/salt-stats>`_ states on your master or just grab the `salmon returner <https://github.com/lincolnloop/salt-stats/blob/master/salt/_returners/salmon_return.py>`_
+2. Add the path to your Salmon install and API key (found in ``~/.salmon/conf.py``) to your Salt Pillar. (`salmon pillar example <https://github.com/lincolnloop/salt-stats/blob/master/salt/_returners/salmon_return.py#L10-L12>`_)
+3. Add a `schedule` pillar. (`schedule pillar example <https://gist.github.com/ipmb/8009715>`_)
+4. Run ``salt '*' saltutil.sync_all``
 
 *Note:* To use Salt's ``ps`` module, `psutil <https://code.google.com/p/psutil/>`_ must be installed on
 the minions. Ubuntu provides a ``python-psutil`` package or it can be installed via ``pip install psutil``.
