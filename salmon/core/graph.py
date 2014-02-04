@@ -64,7 +64,12 @@ class WhisperDatabase(object):
         start_time, end_time, step = time_info
         current = start_time
         times = []
-        while current <= end_time:
+        while current <= end_time and len(times) <= len(values):
+            try:
+                if values[len(times)] is None:
+                    break
+            except IndexError:
+                pass
             times.append(current)
             current += step
         return zip(times, values)
