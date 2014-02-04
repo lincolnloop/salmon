@@ -18,6 +18,8 @@ class SalmonHTTPServer(object):
             '--bind={0}:{1}'.format(self.host, self.port),
             '--timeout={0}'.format(options.get('timeout', 30)),
             '--name={0}'.format(options.get('name', 'Salmon')),
+            '--workers={0}'.format(options.get('workers', 4)),
+            '--worker-class={0}'.format(options.get('worker', 'gevent'))
         ]
 
         for bool_arg in ['debug', 'daemon']:
