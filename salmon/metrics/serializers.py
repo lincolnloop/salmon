@@ -1,4 +1,5 @@
 import logging
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.utils.timezone import now
 from rest_framework import serializers
 
@@ -16,6 +17,14 @@ class MetricSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Metric
         fields = ('source', 'name', 'value', 'timestamp')
+
+    def validate_source(self, attrs, source):
+        if source in attrs:
+            try:
+                reverse("history", args=[attrs[source]])
+            except NoReverseMatch:
+                raise serializers.ValidationError("Source is invalid.")
+        return attrs
 
     def restore_object(self, attrs, instance=None):
         kwargs = {'name': attrs['name']}
