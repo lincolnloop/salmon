@@ -36,3 +36,9 @@ class TestSerializer(TestCase):
                 'name': 'load'}
         serializer = MetricSerializer(data=data)
         self.assertFalse(serializer.is_valid())
+
+    def test_invalid_source(self):
+        data = {'source': 'test.example.com:8000',
+                'name': 'load', 'value': 0.1}
+        serializer = MetricSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
