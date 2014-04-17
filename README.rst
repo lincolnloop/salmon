@@ -1,6 +1,13 @@
 salmon
 ======
 
+This project is unmaintained
+-----------------------------
+
+My need for simple monitoring quickly became a need for more complex monitoring. I'm no longer using Salmon, as such, I'm no longer maintaining it. If you would like to continue developing Salmon, feel free to fork the repo and we can point this to your fork.
+
+....
+
 .. image:: https://secure.travis-ci.org/lincolnloop/salmon.png?branch=master
    :target: http://travis-ci.org/lincolnloop/salmon
 
